@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<scale xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:drawable="@drawable/ic_person_mood_log"
+    android:scaleWidth="200%"
+    android:scaleHeight="200%"
+    android:scaleGravity="center_vertical|center_horizontal"
+    android:useIntrinsicSizeAsMinimum="false" />

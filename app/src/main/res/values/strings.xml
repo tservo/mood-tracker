@@ -1,3 +1,13 @@
 <resources>
-    <string name="app_name">Mood Tracker</string>
+    <string name="app_name">Daily Mood Tracker</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="action_settings">Settings</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
+    <string name="label_mood">Mood</string>
+    <string name="label_graph">Graph</string>
+    <string name="slider_mood">Your Mood</string>
+    <string name="mood_depressed">Very Depressed</string>
+    <string name="mood_manic">Extremely Manic</string>
 </resources>
