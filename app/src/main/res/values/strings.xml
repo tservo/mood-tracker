@@ -10,4 +10,13 @@
     <string name="slider_mood">Your Mood</string>
     <string name="mood_depressed">Very Depressed</string>
     <string name="mood_manic">Extremely Manic</string>
+
+    <!-- here are the names for the charts -->
+    <string name="chart_last_2_weeks">Last 2 Weeks</string>
+    <string name="chart_last_1_month">Last Month</string>
+    <string name="chart_last_3_months">Last 3 Months</string>
+    <string name="chart_last_6_months">Last 6 Months</string>
+    <string name="chart_last_1_year">Last Year</string>
+    <string name="mood_locked">Mood slider is locked</string>
+    <string name="spinner_label">Display results from</string>
 </resources>

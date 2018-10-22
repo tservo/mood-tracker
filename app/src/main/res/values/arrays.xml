@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="chart_labels">
+        <item>@string/chart_last_2_weeks</item>
+        <item>@string/chart_last_1_month</item>
+        <item>@string/chart_last_3_months</item>
+        <item>@string/chart_last_6_months</item>
+        <item>@string/chart_last_1_year</item>
+    </array>
+</resources>

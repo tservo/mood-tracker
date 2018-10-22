@@ -24,6 +24,8 @@ import android.widget.TextView;
 import com.facebook.stetho.Stetho;
 import com.facebook.stetho.okhttp3.StethoInterceptor;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import okhttp3.OkHttpClient;
 import timber.log.Timber;
 
@@ -42,21 +44,22 @@ public class MainActivity extends AppCompatActivity {
     /**
      * The {@link ViewPager} that will host the section contents.
      */
-    private ViewPager mViewPager;
+    @BindView(R.id.container)  ViewPager mViewPager;
+
     private static final int NUM_TABS = 2; // mood, and graph
     private static final int MOOD_TAB = 0;
     private static final int GRAPH_TAB = 1;
 
-    /**
-     * The {@link TabLayout} that tabs between the two pages.
-     */
-    private TabLayout mTabLayout;
+
+    @BindView(R.id.tab_layout)  TabLayout mTabLayout;
+    @BindView(R.id.toolbar)  Toolbar mToolbar;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
         // install Timber Tree
         if (BuildConfig.DEBUG) {
@@ -69,23 +72,30 @@ public class MainActivity extends AppCompatActivity {
                     .build();
         }
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        mToolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+
+
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager() );
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         // and the tab layout with the view pager!
-        mTabLayout = findViewById(R.id.tab_layout);
         mTabLayout.setupWithViewPager(mViewPager);
         // and assign the icons
 
-        mTabLayout.getTabAt(MOOD_TAB).setIcon(R.drawable.ic_person_mood_log);
-        mTabLayout.getTabAt(GRAPH_TAB).setIcon(R.drawable.ic_sentiment_very_satisfied_black_24dp);
+        TabLayout.Tab moodTab = mTabLayout.getTabAt(MOOD_TAB);
+        if (null != moodTab) {
+            moodTab.setIcon(R.drawable.ic_person_mood_log);
+        }
+
+        TabLayout.Tab graphTab = mTabLayout.getTabAt(GRAPH_TAB);
+        if (null != graphTab) {
+            graphTab.setIcon(R.drawable.ic_show_chart_black_24dp);
+        }
 
 
 

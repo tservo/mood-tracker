@@ -19,5 +19,23 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <!-- customize the mood seekbar here -->
     <style name="MoodSlider" parent="Widget.AppCompat.SeekBar.Discrete" />
+
+    <!--
+    customize the tabs for the mood/graph fragments here
+    https://stackoverflow.com/questions/31295116/androidtextallcaps-false-not-working-for-tablayout-design-support
+    -->
+
+    <style name="AppTheme.MoodTabs" parent="AppTheme.AppBarOverlay" >
+        <item name="tabTextAppearance">@style/MoodTabTextAppearance</item>
+    </style>
+
+
+    <style name="MoodTabTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="textAllCaps">false</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+
 </resources>
