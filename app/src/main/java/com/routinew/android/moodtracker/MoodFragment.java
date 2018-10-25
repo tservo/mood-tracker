@@ -1,6 +1,7 @@
 package com.routinew.android.moodtracker;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,6 +13,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.routinew.android.moodtracker.ViewModels.MoodViewModel;
 
 import java.util.Calendar;
@@ -36,6 +39,7 @@ public class MoodFragment extends Fragment {
     }
 
     // butterknife
+    @BindView(R.id.greeting) TextView mGreeting; // greeting to show user is logged in
     @BindView(R.id.tv_calendar_date) TextView mCalendarDate;
     Unbinder unbinder;
 
@@ -53,9 +57,10 @@ public class MoodFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        setGreeting();
         handleCalendar();
     }
+
 
 
 
@@ -72,6 +77,23 @@ public class MoodFragment extends Fragment {
 
         // clean up after butterknife
         unbinder.unbind();
+    }
+
+    private void setGreeting() {
+        String greetingString;
+        greetingString = "Testing here.";
+
+        GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(getActivity());
+        if (acct != null) {
+//            String personName = acct.getDisplayName();
+            greetingString = acct.getGivenName();
+//            String personFamilyName = acct.getFamilyName();
+//            String personEmail = acct.getEmail();
+//            String personId = acct.getId();
+//            Uri personPhoto = acct.getPhotoUrl();
+        }
+
+        mGreeting.setText(greetingString);
     }
 
     /**

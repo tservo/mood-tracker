@@ -1,9 +1,10 @@
 package com.routinew.android.moodtracker;
 
-import android.content.Context;
+import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.design.button.MaterialButton;
+
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -13,24 +14,35 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 
-import android.widget.TextView;
+import android.widget.LinearLayout;
 
 import com.facebook.stetho.Stetho;
 import com.facebook.stetho.okhttp3.StethoInterceptor;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import okhttp3.OkHttpClient;
 import timber.log.Timber;
 
+
 public class MainActivity extends AppCompatActivity {
 
+    /*
+     The google sign-in code comes from https://developers.google.com/identity/sign-in/android/sign-in
+     */
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -50,9 +62,28 @@ public class MainActivity extends AppCompatActivity {
     private static final int MOOD_TAB = 0;
     private static final int GRAPH_TAB = 1;
 
+    private static final int RC_SIGN_IN = 405;
 
     @BindView(R.id.tab_layout)  TabLayout mTabLayout;
     @BindView(R.id.toolbar)  Toolbar mToolbar;
+    @BindView(R.id.signin) SignInButton mSignInButton;
+    @BindView(R.id.sign_out_button) MaterialButton mSignoutButton;
+    @BindView(R.id.signin_screen) LinearLayout mSigninScreen;
+    @BindView(R.id.logged_in_screen) LinearLayout mLoggedInScreen;
+
+    @OnClick({R.id.signin, R.id.sign_out_button}) public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.signin:
+                signIn();
+                break;
+            case R.id.sign_out_button:
+                signOut();
+                break;
+            // ...
+        }
+    }
+
+    private GoogleSignInClient mGoogleSignInClient;
 
 
     @Override
@@ -71,6 +102,18 @@ public class MainActivity extends AppCompatActivity {
                     .addNetworkInterceptor(new StethoInterceptor())
                     .build();
         }
+
+        // Configure sign-in to request the user's ID, email address, and basic
+        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+
+
+
+        // Build a GoogleSignInClient with the options specified by gso.
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
 
         mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
@@ -98,20 +141,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-
-        // the floating action button setup.
-        // FIXME: remove this button
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Check for existing Google Sign In account, if the user is already signed in
+        // the GoogleSignInAccount will be non-null.
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        updateUI(account);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -133,6 +172,83 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
+        if (requestCode == RC_SIGN_IN) {
+            // The Task returned from this call is always completed, no need to attach
+            // a listener.
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSignInResult(task);
+        }
+    }
+
+    // helper methods for event handlers:
+
+
+    /**
+     * handle what happened with the sign in result
+     * @param completedTask
+     */
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+
+            // Signed in successfully, show authenticated UI.
+            updateUI(account);
+        } catch (ApiException e) {
+            // The ApiException status code indicates the detailed failure reason.
+            // Please refer to the GoogleSignInStatusCodes class reference for more information.
+            Timber.w("signInResult:failed code = %d", e.getStatusCode());
+            updateUI(null);
+        }
+    }
+
+    private void updateUI(GoogleSignInAccount account) {
+        if (null == account) {
+            // we aren't signed in - we need to sign in
+            mLoggedInScreen.setVisibility(View.GONE);
+            mSigninScreen.setVisibility(View.VISIBLE);
+            mSignoutButton.setVisibility(View.GONE);
+        } else {
+            // we're signed in
+            mLoggedInScreen.setVisibility(View.VISIBLE);
+            mSigninScreen.setVisibility(View.GONE);
+            mSignoutButton.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
+     * handle the sign in
+     */
+    private void signIn() {
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    private void signOut() {
+        mGoogleSignInClient.signOut()
+                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        // we've signed out, so no account to pass.
+                        updateUI(null);
+                    }
+                });
+    }
+
+    private void revokeAccess() {
+        mGoogleSignInClient.revokeAccess()
+                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        // ...
+                    }
+                });
     }
 
 

@@ -19,4 +19,6 @@
     <string name="chart_last_1_year">Last Year</string>
     <string name="mood_locked">Mood slider is locked</string>
     <string name="spinner_label">Display results from</string>
+    <string name="sign_in_prompt">Welcome. Please sign in to access your data</string>
+    <string name="button_sign_out">Sign Out</string>
 </resources>
