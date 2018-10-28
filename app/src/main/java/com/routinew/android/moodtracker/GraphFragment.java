@@ -1,5 +1,6 @@
 package com.routinew.android.moodtracker;
 
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,8 +11,15 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
+import com.routinew.android.moodtracker.POJO.Mood;
+import com.routinew.android.moodtracker.ViewModels.MoodViewModel;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -19,7 +27,7 @@ import butterknife.Unbinder;
 
 public class GraphFragment extends Fragment {
 
-    private GraphViewModel mViewModel;
+    private MoodViewModel mViewModel;
 
     // fragments have a special lifestyle, so need this.
     private Unbinder unbinder;
@@ -43,14 +51,19 @@ public class GraphFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        handleGraph();
+
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mViewModel = ViewModelProviders.of(this).get(GraphViewModel.class);
-        // TODO: Use the ViewModel
+        mViewModel = ViewModelProviders.of(getActivity()).get(MoodViewModel.class);
+        mViewModel.getMoods().observe(this, new Observer<List<Mood>>() {
+            @Override
+            public void onChanged(@Nullable List<Mood> moods) {
+                handleGraph(moods); // the graph monitors this list of moods
+            }
+        });
     }
 
     @Override
@@ -62,13 +75,37 @@ public class GraphFragment extends Fragment {
     }
 
     // private helper methods
-    private void handleGraph() {
+
+    // here we take the mood data and plot it out.
+    private void handleGraph(List<Mood> moods) {
+
+        // we need the first and last dates
         // populate the graph view here.
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<>(new DataPoint[] {
-                new DataPoint(0, 1),
-                new DataPoint(1, 5),
-                new DataPoint(2, 3)
-        });
+        Collections.sort(moods, Mood.dateComparator()); // make sure they are in order first!
+
+        // populate the series
+        DataPoint[] moodData = new DataPoint[moods.size()];
+        for (int i=0; i < moods.size(); i++) {
+            Mood mood = moods.get(i);
+           // moodData[i] = new DataPoint(mood.getDate().getTime(), mood.getMoodScore());
+            moodData[i] = new DataPoint(i, mood.getMoodScore());
+        }
+
+        // add them to the graph
+        LineGraphSeries<DataPoint> series = new LineGraphSeries<>(moodData);
         mGraphView.addSeries(series);
+
+        // set date label formatter
+        mGraphView.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getActivity()));
+        mGraphView.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
+
+        // set manual x bounds to have nice steps
+        mGraphView.getViewport().setMinX(moodData[0].getX());
+        mGraphView.getViewport().setMaxX(moodData[moodData.length-1].getX());
+        mGraphView.getViewport().setXAxisBoundsManual(true);
+
+    // as we use dates as labels, the human rounding to nice readable numbers
+    // is not necessary
+        mGraphView.getGridLabelRenderer().setHumanRounding(false);
     }
 }
