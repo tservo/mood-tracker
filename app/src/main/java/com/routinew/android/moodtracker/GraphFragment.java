@@ -30,16 +30,21 @@ import butterknife.Unbinder;
 
 public class GraphFragment extends Fragment {
 
+
+
     private MoodViewModel mViewModel;
 
     // fragments have a special lifestyle, so need this.
     private Unbinder unbinder;
+
     @BindView(R.id.graph) GraphView mGraphView;
 
 
     public static GraphFragment newInstance() {
         return new GraphFragment();
     }
+
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,

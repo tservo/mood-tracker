@@ -3,6 +3,8 @@ package com.routinew.android.moodtracker.Data;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.routinew.android.moodtracker.POJO.Mood;
 
 import java.text.SimpleDateFormat;
@@ -32,6 +34,22 @@ public class MoodRepository {
     private SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
     private HashMap<String, Mood> mMoodTable = new HashMap<>(); // for testing purposes
 
+    private ArrayList<Mood> mMoodStorage = new ArrayList<>(); // for testing purposes
+
+
+
+   private static final DatabaseReference MOOD_REF =
+    FirebaseDatabase.getInstance().getReference("/moods");
+
+   //private final FirebaseQueryLiveData liveData = new FirebaseQueryLiveData(MOOD_REF);
+
+//@NonNull
+//public LiveData<DataSnapshot> getDataSnapshotLiveData() {
+//    return liveData;
+//}
+
+
+
     // singleton constructor
     private MoodRepository() {
         // singleton!
@@ -59,9 +77,16 @@ public class MoodRepository {
         return moods;
     }
 
-    private void loadMoods() {
-        moods.setValue(new ArrayList<>(mMoodTable.values())); // convert to list
+    /**
+     * switch the mood date range for the graph here.
+     * @param startDate
+     * @param endDate
+     */
+    public void setMoodDateRange(Calendar startDate, Calendar endDate) {
+        // FIXME: get the data range up
     }
+
+
 
     public LiveData<Mood> getSelectedMood() {
         if (currentMood == null) {
@@ -101,6 +126,11 @@ public class MoodRepository {
 
     }
 
+
+    private void loadMoods() {
+        moods.setValue(mMoodStorage); // convert to list
+    }
+
     /**
      * given a calendar date, retrieve the mood associated with it.
      * @param date
@@ -136,7 +166,7 @@ public class MoodRepository {
 
     private void mockMoods() {
         Calendar startDate = Calendar.getInstance();
-        startDate.add(Calendar.DATE, -30);
+        startDate.add(Calendar.YEAR, -1);
 
         Calendar currentDate = Calendar.getInstance();
         currentDate.add(Calendar.DATE,+1);
@@ -145,7 +175,8 @@ public class MoodRepository {
 
         // here we store the moods by date.
         while (startDate.before(currentDate)) {
-            mMoodTable.put(dateFormat(startDate),generateMood(startDate));
+            //mMoodTable.put(dateFormat(startDate),generateMood(startDate));
+            mMoodStorage.add(generateMood(startDate));
             startDate.add(Calendar.DATE, +1); // next day
         }
     }

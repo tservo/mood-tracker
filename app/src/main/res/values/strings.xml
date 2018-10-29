@@ -17,6 +17,8 @@
     <string name="chart_last_3_months">Last 3 Months</string>
     <string name="chart_last_6_months">Last 6 Months</string>
     <string name="chart_last_1_year">Last Year</string>
+
+    <!-- other strings and accessibility -->
     <string name="mood_locked">Mood slider is locked</string>
     <string name="spinner_label">Display results from</string>
     <string name="sign_in_prompt">Welcome. Please sign in to access your data</string>

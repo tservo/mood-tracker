@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.button.MaterialButton;
 
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -30,6 +31,12 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApiNotAvailableException;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -84,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private GoogleSignInClient mGoogleSignInClient;
+    private FirebaseAuth mAuth;
 
 
     @Override
@@ -106,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
 
@@ -113,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        mAuth = FirebaseAuth.getInstance();
 
 
         mToolbar = findViewById(R.id.toolbar);
@@ -149,7 +159,8 @@ public class MainActivity extends AppCompatActivity {
         // Check for existing Google Sign In account, if the user is already signed in
         // the GoogleSignInAccount will be non-null.
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-        updateUI(account);
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        updateUI(currentUser);
     }
 
     @Override
@@ -195,11 +206,14 @@ public class MainActivity extends AppCompatActivity {
      * @param completedTask
      */
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        // possibilities
+        // 1. not signed in to google account
+        // 2. google account not tied to firebase user account
+        // 3. google account -> firebase user account. good.
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
 
-            // Signed in successfully, show authenticated UI.
-            updateUI(account);
+            firebaseAuthWithGoogle(account);
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
@@ -208,7 +222,46 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void updateUI(GoogleSignInAccount account) {
+    /**
+     * handle steps to authorize to firebase with google account
+     * @param account the google signin account needed
+     */
+    private void firebaseAuthWithGoogle(@Nullable GoogleSignInAccount account) {
+        // in the case we couldn't get a google account to authorize with
+        if (null == account) {
+            Timber.w("firebaseAuthWithGoogle: no google account to authorize");
+            return;
+        }
+
+        Timber.d("firebaseAuthWithGoogle: %s", account.getId());
+
+
+        AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
+
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // sign in success
+                            Timber.d("signInWithCredential: success");
+                            FirebaseUser firebaseUser = mAuth.getCurrentUser();
+                            // update UI
+                            updateUI(firebaseUser);
+                        } else {
+                            Timber.w("signInWithCredential: failure");
+                            updateUI(null);
+                        }
+                    }
+                });
+
+    }
+
+    /**
+     * handle the logged in/logged out UI display
+     * @param account
+     */
+    private void updateUI(FirebaseUser account) {
         if (null == account) {
             // we aren't signed in - we need to sign in
             mLoggedInScreen.setVisibility(View.GONE);
@@ -230,7 +283,11 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
+    /**
+     * handle the sign out
+     */
     private void signOut() {
+        FirebaseAuth.getInstance().signOut();
         mGoogleSignInClient.signOut()
                 .addOnCompleteListener(this, new OnCompleteListener<Void>() {
                     @Override
@@ -241,6 +298,9 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * revoke access to the current google account
+     */
     private void revokeAccess() {
         mGoogleSignInClient.revokeAccess()
                 .addOnCompleteListener(this, new OnCompleteListener<Void>() {

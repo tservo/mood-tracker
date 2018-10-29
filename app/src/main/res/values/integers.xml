@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- values for the mood graphs -->
+    <integer name="graph_2_weeks">1</integer>
+    <integer name="graph_1_month">2</integer>
+</resources>
