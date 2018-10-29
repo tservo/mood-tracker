@@ -21,4 +21,7 @@
     <string name="spinner_label">Display results from</string>
     <string name="sign_in_prompt">Welcome. Please sign in to access your data</string>
     <string name="button_sign_out">Sign Out</string>
+    <string name="label_depressed">depressed</string>
+    <string name="label_neutral">neutral</string>
+    <string name="label_manic">manic</string>
 </resources>

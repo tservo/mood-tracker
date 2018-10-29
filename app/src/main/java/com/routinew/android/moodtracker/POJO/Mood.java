@@ -82,7 +82,7 @@ public class Mood {
      * @return
      */
     public static Mood generateMood(Calendar date) {
-        return new Mood(generateRandomMoodScore());
+        return new Mood(generateRandomMoodScore(), date);
     }
 
     private static Comparator<Mood> sDateComparator = new Comparator<Mood>() {

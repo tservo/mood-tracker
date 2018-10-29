@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
+import com.jjoe64.graphview.helper.StaticLabelsFormatter;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 import com.routinew.android.moodtracker.POJO.Mood;
@@ -88,24 +89,39 @@ public class GraphFragment extends Fragment {
         for (int i=0; i < moods.size(); i++) {
             Mood mood = moods.get(i);
            // moodData[i] = new DataPoint(mood.getDate().getTime(), mood.getMoodScore());
-            moodData[i] = new DataPoint(i, mood.getMoodScore());
+            moodData[i] = new DataPoint(mood.getDate().getTime(), mood.getMoodScore());
         }
+
+        // set static Y axis and date label X-axis formatter
+        StaticLabelsFormatter labelsFormatter =
+                new StaticLabelsFormatter(mGraphView , new DateAsXAxisLabelFormatter(getActivity()));
+        labelsFormatter.setVerticalLabels(
+                new String[] {getString(R.string.label_depressed),
+                        getString(R.string.label_neutral),
+                        getString(R.string.label_manic)});
+        mGraphView.getGridLabelRenderer().setLabelFormatter(labelsFormatter);
+
+        mGraphView.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
+
+        // set manual x bounds to have nice steps
+        mGraphView.getViewport().setXAxisBoundsManual(true);
+
+        mGraphView.getViewport().setMinX(moodData[0].getX());
+        mGraphView.getViewport().setMaxX(moodData[moodData.length-1].getX());
+        mGraphView.getViewport().setXAxisBoundsManual(true);
+
+        // as we use dates as labels, the human rounding to nice readable numbers
+        // is not necessary
+        mGraphView.getGridLabelRenderer().setHumanRounding(false);
+
+        // and we can zoom/scroll it.
+        mGraphView.getViewport().setScalable(true);
 
         // add them to the graph
         LineGraphSeries<DataPoint> series = new LineGraphSeries<>(moodData);
         mGraphView.addSeries(series);
 
-        // set date label formatter
-        mGraphView.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getActivity()));
-        mGraphView.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
 
-        // set manual x bounds to have nice steps
-        mGraphView.getViewport().setMinX(moodData[0].getX());
-        mGraphView.getViewport().setMaxX(moodData[moodData.length-1].getX());
-        mGraphView.getViewport().setXAxisBoundsManual(true);
 
-    // as we use dates as labels, the human rounding to nice readable numbers
-    // is not necessary
-        mGraphView.getGridLabelRenderer().setHumanRounding(false);
     }
 }

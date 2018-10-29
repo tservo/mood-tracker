@@ -1,4 +1,4 @@
-package com.routinew.android.moodtracker;
+package com.routinew.android.moodtracker.ViewModels;
 
 import android.arch.lifecycle.ViewModel;
 
