@@ -1,9 +1,7 @@
 package com.routinew.android.moodtracker;
 
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -16,16 +14,16 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.routinew.android.moodtracker.Data.MoodRepository;
 import com.routinew.android.moodtracker.POJO.Mood;
 import com.routinew.android.moodtracker.ViewModels.MoodViewModel;
+import com.routinew.android.moodtracker.ViewModels.MoodViewModelFactory;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
@@ -77,10 +75,12 @@ public class MoodFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mViewModel = ViewModelProviders.of(getActivity()).get(MoodViewModel.class);
+        MoodViewModelFactory moodViewModelFactory = new MoodViewModelFactory(MoodRepository.getInstance());
+
+        mViewModel = ViewModelProviders.of(getActivity(),moodViewModelFactory).get(MoodViewModel.class);
         // TODO: Use the ViewModel
 
-       mViewModel.getCurrentMood().observe(this, new Observer<Mood>() {
+       mViewModel.getSelectedMood().observe(this, new Observer<Mood>() {
            @Override
            public void onChanged(@Nullable Mood mood) {
                updateUI(mood);
@@ -228,7 +228,7 @@ public class MoodFragment extends Fragment {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
                     // this will renormalize the mood score
-                    mViewModel.setCurrentMoodScore(progress + Mood.MOOD_MINIMUM);
+                    mViewModel.setSelectedMoodScore(progress + Mood.MOOD_MINIMUM);
                     // and set a timeout -- once this timeout goes off we commit the value
                     // and lock the value
                 }

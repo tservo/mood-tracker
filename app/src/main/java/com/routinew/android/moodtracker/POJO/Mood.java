@@ -68,22 +68,7 @@ public class Mood {
     }
 
 
-    /**
-     * for getting a random mood score.
-     * @return
-     */
-    private static int generateRandomMoodScore() {
-        return new Random().nextInt((MOOD_MAXIMUM - MOOD_MINIMUM) + 1) + MOOD_MINIMUM;
-    }
 
-    /**
-     * test method for generating moods
-     * @param date
-     * @return
-     */
-    public static Mood generateMood(Calendar date) {
-        return new Mood(generateRandomMoodScore(), date);
-    }
 
     private static Comparator<Mood> sDateComparator = new Comparator<Mood>() {
         @Override

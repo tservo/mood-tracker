@@ -15,8 +15,10 @@ import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
 import com.jjoe64.graphview.helper.StaticLabelsFormatter;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
+import com.routinew.android.moodtracker.Data.MoodRepository;
 import com.routinew.android.moodtracker.POJO.Mood;
 import com.routinew.android.moodtracker.ViewModels.MoodViewModel;
+import com.routinew.android.moodtracker.ViewModels.MoodViewModelFactory;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -58,7 +60,8 @@ public class GraphFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mViewModel = ViewModelProviders.of(getActivity()).get(MoodViewModel.class);
+        MoodViewModelFactory moodViewModelFactory = new MoodViewModelFactory(MoodRepository.getInstance());
+        mViewModel = ViewModelProviders.of(getActivity(), moodViewModelFactory).get(MoodViewModel.class);
         mViewModel.getMoods().observe(this, new Observer<List<Mood>>() {
             @Override
             public void onChanged(@Nullable List<Mood> moods) {

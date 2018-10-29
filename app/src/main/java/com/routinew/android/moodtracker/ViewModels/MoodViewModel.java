@@ -1,13 +1,12 @@
 package com.routinew.android.moodtracker.ViewModels;
 
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 
+import com.routinew.android.moodtracker.Data.MoodRepository;
 import com.routinew.android.moodtracker.POJO.Mood;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -26,54 +25,50 @@ public class MoodViewModel extends ViewModel {
         return liveData;
     }
      */
+    private MoodRepository mMoodRepository;
 
-
-    private MutableLiveData<List<Mood>> moods;
-    private MutableLiveData<Mood> currentMood;
+    private LiveData<List<Mood>> moods;
+    private LiveData<Mood> currentMood;
 
     private SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
     private HashMap<String, Mood> mMoodTable = new HashMap<>(); // for testing purposes
 
-    public MoodViewModel() {
-       super();
-       mockMoods();
+    public MoodViewModel(MoodRepository moodRepository) {
+        mMoodRepository = moodRepository;
     }
 
+    /**
+     * get a list of moods -- should be able to specify by a date range
+     * @return link to a range of moods
+     */
     public LiveData<List<Mood>> getMoods() {
         if (moods == null) {
-            moods = new MutableLiveData<>();
-            loadMoods();
+            moods = mMoodRepository.getMoods();
         }
         return moods;
     }
 
-    private void loadMoods() {
-        moods.setValue(new ArrayList<>(mMoodTable.values())); // convert to list
-    }
-
-    public LiveData<Mood> getCurrentMood() {
+    /**
+     * get the currently selected mood to show.
+     * @return
+     */
+    public LiveData<Mood> getSelectedMood() {
         if (currentMood == null) {
-            currentMood = new MutableLiveData<>();
-            loadCurrentMood();
+            currentMood = mMoodRepository.getSelectedMood();
         }
-
         return currentMood;
     }
 
-    public void setCurrentMoodScore(int newScore) {
+    public void setSelectedMoodScore(int newScore) {
         // this is where we'd lock down the storage to do this
-
-
-        Mood m = currentMood.getValue();
-        m.setMoodScore(newScore);
-        currentMood.setValue(m);
+        mMoodRepository.setSelectedMoodScore(newScore);
     }
 
     /**
      * tests if there is a mood score for the current day.
      * @return is there a mood score for the current day?
      */
-    public boolean doesCurrentMoodScoreExist() {
+    public boolean doesSelectedMoodScoreExist() {
         return true; // we're still testing with data, so yes it does.
     }
 
@@ -90,39 +85,8 @@ public class MoodViewModel extends ViewModel {
      */
     public void selectMood(Calendar date) {
         // for now just retrieve
-        currentMood.postValue(mMoodTable.get(dateFormat(date)));
-    }
-
-    private void loadCurrentMood() {
-        Mood mood = mMoodTable.get(dateFormat(Calendar.getInstance()));
-        currentMood.setValue(mood);
+        mMoodRepository.selectMood(date);
     }
 
 
-    // helper to get a hash code for the calendar
-    private String dateFormat(Calendar calendar) {
-        // for the hash map
-
-        return mDateFormat.format(calendar.getTime());
-    }
-    // create a list of moods for the past month
-    private void mockMoods() {
-        Calendar startDate = Calendar.getInstance();
-        startDate.add(Calendar.DATE, -30);
-
-        Calendar currentDate = Calendar.getInstance();
-        currentDate.add(Calendar.DATE,+1);
-
-
-
-        // here we store the moods by date.
-        while (startDate.before(currentDate)) {
-            mMoodTable.put(dateFormat(startDate),Mood.generateMood(startDate));
-            startDate.add(Calendar.DATE, +1); // next day
-        }
-    }
-
-    private void writeMood() {
-
-    }
 }
