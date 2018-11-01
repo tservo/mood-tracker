@@ -40,7 +40,7 @@
         android:layout_marginEnd="64dp"
         android:layout_marginRight="64dp"
         android:layout_marginBottom="2dp"
-        android:max="11"
+        android:max="10"
         android:progress="4"
         android:progressDrawable="@drawable/mood_slider_gradient"
         android:thumb="@drawable/ic_circle_white_8dp"

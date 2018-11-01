@@ -27,6 +27,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import timber.log.Timber;
 
 public class GraphFragment extends Fragment {
 
@@ -67,7 +68,7 @@ public class GraphFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         MoodViewModelFactory moodViewModelFactory = new MoodViewModelFactory(MoodRepository.getInstance());
         mViewModel = ViewModelProviders.of(getActivity(), moodViewModelFactory).get(MoodViewModel.class);
-        mViewModel.getMoods().observe(this, new Observer<List<Mood>>() {
+        mViewModel.getReportMoods().observe(this, new Observer<List<Mood>>() {
             @Override
             public void onChanged(@Nullable List<Mood> moods) {
                 handleGraph(moods); // the graph monitors this list of moods
@@ -87,7 +88,13 @@ public class GraphFragment extends Fragment {
 
     // here we take the mood data and plot it out.
     private void handleGraph(List<Mood> moods) {
+        if (null == moods) {
+            Timber.w("called with null moods list");
+            return;
+        }
 
+        // clean up.
+        mGraphView.removeAllSeries();
         // we need the first and last dates
         // populate the graph view here.
         Collections.sort(moods, Mood.dateComparator()); // make sure they are in order first!
@@ -96,8 +103,7 @@ public class GraphFragment extends Fragment {
         DataPoint[] moodData = new DataPoint[moods.size()];
         for (int i=0; i < moods.size(); i++) {
             Mood mood = moods.get(i);
-           // moodData[i] = new DataPoint(mood.getDate().getTime(), mood.getMoodScore());
-            moodData[i] = new DataPoint(mood.getDate().getTime(), mood.getMoodScore());
+            moodData[i] = new DataPoint(mood.getCalendarDate().getTime(), mood.getMoodScore());
         }
 
         // set static Y axis and date label X-axis formatter

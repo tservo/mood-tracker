@@ -78,7 +78,6 @@ public class MoodFragment extends Fragment {
         MoodViewModelFactory moodViewModelFactory = new MoodViewModelFactory(MoodRepository.getInstance());
 
         mViewModel = ViewModelProviders.of(getActivity(),moodViewModelFactory).get(MoodViewModel.class);
-        // TODO: Use the ViewModel
 
        mViewModel.getSelectedMood().observe(this, new Observer<Mood>() {
            @Override
@@ -179,6 +178,7 @@ public class MoodFragment extends Fragment {
             @Override
             public void onDateSelected(Calendar date, int position) {
                 formatDate(date, position); // handle the calendar display field.
+                mViewModel.commitMood(); // flush the current mood to permanent storage if necessary
                 mViewModel.selectMood(date);
                 determineIfMoodSliderShouldBeLocked();
             }
@@ -217,8 +217,8 @@ public class MoodFragment extends Fragment {
 
     // helper to lock and commit the mood score. will be called whenever
     // there has been a new/changed score
-    private void lockAndCommitMoodScore() {
-        mViewModel.commitScore(); // put the new score in the database
+    private void lockAndCommitMood() {
+        mViewModel.commitMood(); // put the new score in the database
         mToggleLockSlider.setChecked(true); // lock the slider
     }
 
@@ -252,6 +252,11 @@ public class MoodFragment extends Fragment {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 // match the lock on the mood slider
                 lockMoodSlider(isChecked);
+
+                // assume that if the user clicks on the lock they want to commit the mood score.
+                if (isChecked) {
+                    mViewModel.commitMood();
+                }
             }
         });
     }

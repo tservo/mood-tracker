@@ -1,16 +1,17 @@
 package com.routinew.android.moodtracker.ViewModels;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModel;
+import android.support.annotation.Nullable;
 
 import com.routinew.android.moodtracker.Data.MoodRepository;
 import com.routinew.android.moodtracker.POJO.Mood;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.HashMap;
+
 import java.util.List;
-import java.util.Locale;
 
 import timber.log.Timber;
 
@@ -18,65 +19,83 @@ public class MoodViewModel extends ViewModel {
     /**
      * for the graph
      */
+    public enum GraphRange {
+        GRAPH_2_WEEKS,
+        GRAPH_1_MONTH,
+        GRAPH_3_MONTHS,
+        GRAPH_6_MONTHS,
+        GRAPH_1_YEAR
+    }
 
-    public static final int GRAPH_2_WEEKS = 1;
-    public static final int GRAPH_1_MONTH = 2;
-    public static final int GRAPH_3_MONTHS = 3;
-    public static final int GRAPH_6_MONTHS = 4;
-    public static final int GRAPH_1_YEAR = 5;
-
-
-    // TODO: Implement the ViewModel
 
     private MoodRepository mMoodRepository;
 
-    private int moodDateRange = GRAPH_2_WEEKS; // start with two weeks
-    private LiveData<List<Mood>> moods;
+    // this transformation handles the link for graphing moods.
+    private MutableLiveData<GraphRange> moodDateRange = new MutableLiveData<>(); // start with two weeks
+    private LiveData<List<Mood>> reportMoods;
 
-    private LiveData<Mood> currentMood;
 
-    private SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+    // this transformation retrieves the mood for the current date.
+    private MutableLiveData<Calendar> selectedDate = new MutableLiveData<>();
+    private MutableLiveData<Mood> currentMood = new MutableLiveData<>();
 
-    public MoodViewModel(MoodRepository moodRepository) {
-        mMoodRepository = moodRepository;
-    }
+    // does the current mood need to be flushed out?
+    private boolean currentMoodIsDirty;
 
     /**
-     * get a list of moods -- should be able to specify by a date range
-     * @return link to a range of moods
+     * when model is instantiated,
+     * or user has changed, call this method to reset everything.
      */
-    public LiveData<List<Mood>> getMoods() {
-        if (null == moods) {
-            moods = mMoodRepository.getMoods();
-        }
-        return moods;
+    private void initializeData() {
+        // attempt to pull the new mood when the date changes.
+        selectedDate.observeForever(new Observer<Calendar>() {
+            @Override
+            public void onChanged(@Nullable Calendar newDate) {
+                mMoodRepository.getMoodAtDate(newDate, currentMood);
+            }
+        });
+
+        this.selectedDate.setValue(Calendar.getInstance()); // today
+
+
+        this.moodDateRange.setValue(GraphRange.GRAPH_2_WEEKS);
+
+
+
+
+//        this.reportMoods = Transformations.switchMap(moodDateRange, new Function<GraphRange, LiveData<List<Mood>>>() {
+//            @Override
+//            public LiveData<List<Mood>> apply(GraphRange range) {
+//                Calendar startDate = Calendar.getInstance(); // today
+//                switch (range) {
+//                    case GRAPH_2_WEEKS:
+//                        startDate.add(Calendar.WEEK_OF_YEAR, -2);
+//                        break;
+//                    case GRAPH_1_MONTH:
+//                        startDate.add(Calendar.MONTH, -1);
+//                        break;
+//                    case GRAPH_3_MONTHS:
+//                        startDate.add(Calendar.MONTH, -3);
+//                        break;
+//                    case GRAPH_6_MONTHS:
+//                        startDate.add(Calendar.MONTH, -6);
+//                        break;
+//                    case GRAPH_1_YEAR:
+//                        startDate.add(Calendar.YEAR, -1);
+//                    default:
+//                        Timber.w("mood range invalid -- setting to 2 weeks: %s", range.toString());
+//                        startDate.add(Calendar.WEEK_OF_YEAR, -2);
+//                }
+//                return mMoodRepository.getMoodRange(startDate);
+//            }
+//        });
+
+        this.reportMoods = new MutableLiveData<>();
     }
 
-
-    public void setMoodDateRange(int range) {
-        Calendar endDate = Calendar.getInstance();
-        Calendar startDate = Calendar.getInstance();
-        switch(range) {
-            case GRAPH_2_WEEKS:
-                startDate.add(Calendar.WEEK_OF_YEAR,-2);
-                break;
-            case GRAPH_1_MONTH:
-                startDate.add(Calendar.MONTH,-1);
-                break;
-            case GRAPH_3_MONTHS:
-                startDate.add(Calendar.MONTH,-3);
-                break;
-            case GRAPH_6_MONTHS:
-                startDate.add(Calendar.MONTH, -6);
-                break;
-            case GRAPH_1_YEAR:
-                startDate.add(Calendar.YEAR, -1);
-            default:
-                Timber.w("mood range invalid -- setting to 2 weeks: %d",range);
-                startDate.add(Calendar.WEEK_OF_YEAR, -2);
-
-        }
-        mMoodRepository.setMoodDateRange(startDate,endDate);
+    public MoodViewModel(MoodRepository moodRepository) {
+        this.mMoodRepository = moodRepository;
+        initializeData();
     }
 
 
@@ -85,39 +104,72 @@ public class MoodViewModel extends ViewModel {
      * @return
      */
     public LiveData<Mood> getSelectedMood() {
-        if (currentMood == null) {
-            currentMood = mMoodRepository.getSelectedMood();
-        }
         return currentMood;
     }
 
-    public void setSelectedMoodScore(int newScore) {
-        // this is where we'd lock down the storage to do this
-        mMoodRepository.setSelectedMoodScore(newScore);
+    /**
+     * what is the current selected date of the model?
+     * don't change it here -- use selectMood
+     * @return
+     */
+    public LiveData<Calendar> getSelectedDate() {
+        return selectedDate;
+    }
+
+
+    /**
+     * get the currently selected range of moods
+     * @return
+     */
+    public LiveData<List<Mood>> getReportMoods() {
+        return reportMoods;
     }
 
     /**
-     * tests if there is a mood score for the current day.
-     * @return is there a mood score for the current day?
+     * get a handle to change the report range
+     * @return
      */
-    public boolean doesSelectedMoodScoreExist() {
-        return true; // we're still testing with data, so yes it does.
+    public MutableLiveData<GraphRange> getMoodDateRange() {
+        return moodDateRange;
+    }
+
+    public void setSelectedMoodScore(int newScore) {
+        if (newScore == Mood.EMPTY_MOOD || newScore < Mood.MOOD_MINIMUM || newScore > Mood.MOOD_MAXIMUM) {
+            Timber.w("setSelectedMoodScore: invalid score %d", newScore);
+        }
+        
+        Mood mood = currentMood.getValue(); // get snapshot
+
+        // we don't have a mood yet for this date -- make one!
+        if (null == mood) {
+            mood = new Mood(newScore, selectedDate.getValue());
+        } else {
+            mood.setMoodScore(newScore); // just update it
+        }
+
+        // we changed it so update things
+        currentMood.setValue(mood);
+        currentMoodIsDirty = true;
     }
 
     /**
      * this method will commit the current mood to the database.
+     * if the current mood has changed from the last read.
      */
-    public void commitScore() {
-        mMoodRepository.commitScore();
+    public void commitMood() {
+        Mood mood = currentMood.getValue();
+        if ((null != mood) && (!mood.isEmpty()) && currentMoodIsDirty) {
+            mMoodRepository.writeMoodToDatabase(mood);
+        }
     }
 
     /**
-     * given a calendar date, retrieve the mood associated with it.
+     * given a calendar date, make it the main date
+     * to retrieve the current mood.
      * @param date
      */
     public void selectMood(Calendar date) {
-        // for now just retrieve
-        mMoodRepository.selectMood(date);
+        selectedDate.setValue(date);
     }
 
 

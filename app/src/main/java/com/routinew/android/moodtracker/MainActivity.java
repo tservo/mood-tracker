@@ -37,6 +37,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.routinew.android.moodtracker.Data.MoodRepository;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -73,16 +74,11 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.tab_layout)  TabLayout mTabLayout;
     @BindView(R.id.toolbar)  Toolbar mToolbar;
-    @BindView(R.id.signin) SignInButton mSignInButton;
     @BindView(R.id.sign_out_button) MaterialButton mSignoutButton;
-    @BindView(R.id.signin_screen) LinearLayout mSigninScreen;
     @BindView(R.id.logged_in_screen) LinearLayout mLoggedInScreen;
 
-    @OnClick({R.id.signin, R.id.sign_out_button}) public void onClick(View v) {
+    @OnClick(R.id.sign_out_button) public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.signin:
-                signIn();
-                break;
             case R.id.sign_out_button:
                 signOut();
                 break;
@@ -100,17 +96,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        // install Timber Tree
-        if (BuildConfig.DEBUG) {
-            Timber.plant(new Timber.DebugTree());
-
-            // add the stetho diagnostic tools
-            Stetho.initializeWithDefaults(this);
-            new OkHttpClient.Builder()
-                    .addNetworkInterceptor(new StethoInterceptor())
-                    .build();
-        }
-
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -124,6 +109,8 @@ public class MainActivity extends AppCompatActivity {
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         mAuth = FirebaseAuth.getInstance();
 
+        // do we have a user or do we need to go back?
+        updateActivity(mAuth.getCurrentUser());
 
         mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
@@ -156,11 +143,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        // Check for existing Google Sign In account, if the user is already signed in
-        // the GoogleSignInAccount will be non-null.
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUI(currentUser);
     }
 
     @Override
@@ -185,103 +167,25 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
 
-        // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
-        if (requestCode == RC_SIGN_IN) {
-            // The Task returned from this call is always completed, no need to attach
-            // a listener.
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            handleSignInResult(task);
-        }
-    }
 
     // helper methods for event handlers:
 
 
-    /**
-     * handle what happened with the sign in result
-     * @param completedTask
-     */
-    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
-        // possibilities
-        // 1. not signed in to google account
-        // 2. google account not tied to firebase user account
-        // 3. google account -> firebase user account. good.
-        try {
-            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-
-            firebaseAuthWithGoogle(account);
-        } catch (ApiException e) {
-            // The ApiException status code indicates the detailed failure reason.
-            // Please refer to the GoogleSignInStatusCodes class reference for more information.
-            Timber.w("signInResult:failed code = %d", e.getStatusCode());
-            updateUI(null);
-        }
-    }
-
-    /**
-     * handle steps to authorize to firebase with google account
-     * @param account the google signin account needed
-     */
-    private void firebaseAuthWithGoogle(@Nullable GoogleSignInAccount account) {
-        // in the case we couldn't get a google account to authorize with
-        if (null == account) {
-            Timber.w("firebaseAuthWithGoogle: no google account to authorize");
-            return;
-        }
-
-        Timber.d("firebaseAuthWithGoogle: %s", account.getId());
-
-
-        AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
-
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // sign in success
-                            Timber.d("signInWithCredential: success");
-                            FirebaseUser firebaseUser = mAuth.getCurrentUser();
-                            // update UI
-                            updateUI(firebaseUser);
-                        } else {
-                            Timber.w("signInWithCredential: failure");
-                            updateUI(null);
-                        }
-                    }
-                });
-
-    }
 
     /**
      * handle the logged in/logged out UI display
      * @param account
      */
-    private void updateUI(FirebaseUser account) {
+    private void updateActivity(FirebaseUser account) {
         if (null == account) {
             // we aren't signed in - we need to sign in
-            mLoggedInScreen.setVisibility(View.GONE);
-            mSigninScreen.setVisibility(View.VISIBLE);
-            mSignoutButton.setVisibility(View.GONE);
-        } else {
-            // we're signed in
-            mLoggedInScreen.setVisibility(View.VISIBLE);
-            mSigninScreen.setVisibility(View.GONE);
-            mSignoutButton.setVisibility(View.VISIBLE);
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+            finish();
         }
     }
 
-    /**
-     * handle the sign in
-     */
-    private void signIn() {
-        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_SIGN_IN);
-    }
 
     /**
      * handle the sign out
@@ -293,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         // we've signed out, so no account to pass.
-                        updateUI(null);
+                        updateActivity(null);
                     }
                 });
     }
