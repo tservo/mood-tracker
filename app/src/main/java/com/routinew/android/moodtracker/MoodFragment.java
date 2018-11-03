@@ -3,6 +3,7 @@ package com.routinew.android.moodtracker;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -25,6 +26,8 @@ import com.routinew.android.moodtracker.ViewModels.MoodViewModelFactory;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -37,7 +40,19 @@ import timber.log.Timber;
 
 public class MoodFragment extends Fragment {
 
+    private static final int UPDATE_DELAY = 5000;
+
     private MoodViewModel mViewModel;
+
+    // this class allows the timer to update the slider, on the UI thread.
+    private Handler mTimerHandler = new Handler();
+    private Runnable mDelayedMoodCommit = new Runnable() {
+        @Override
+        public void run() {
+            lockAndCommitMood();
+        }
+    };
+
 
     public static MoodFragment newInstance() {
         return new MoodFragment();
@@ -79,12 +94,22 @@ public class MoodFragment extends Fragment {
 
         mViewModel = ViewModelProviders.of(getActivity(),moodViewModelFactory).get(MoodViewModel.class);
 
-       mViewModel.getSelectedMood().observe(this, new Observer<Mood>() {
+        // update the ui when the mood changes
+        mViewModel.getSelectedMood().observe(this, new Observer<Mood>() {
            @Override
            public void onChanged(@Nullable Mood mood) {
                updateUI(mood);
            }
        });
+
+        // and for the first mood load, determine if we should lock the mood slider.
+        mViewModel.getSelectedMood().observe(this, new Observer<Mood>() {
+            @Override
+            public void onChanged(@Nullable Mood mood) {
+                determineIfMoodSliderShouldBeLocked();
+                mViewModel.getSelectedMood().removeObserver(this);
+            }
+        });
 
     }
 
@@ -108,12 +133,6 @@ public class MoodFragment extends Fragment {
     }
 
 
-
-
-
-
-
-
     /**
      * handle the formatting of the calendar
      * @param date
@@ -129,9 +148,12 @@ public class MoodFragment extends Fragment {
     // private helper methods
     private void setGreeting() {
         String greetingString;
-        greetingString = "Testing here.";
+        greetingString = getString(R.string.not_logged_in);
 
         GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(getActivity());
+        if (null == acct) {
+            Timber.w("setGreeting: Not signed in!");
+        }
         if (acct != null) {
 //            String personName = acct.getDisplayName();
             greetingString = acct.getGivenName();
@@ -141,7 +163,7 @@ public class MoodFragment extends Fragment {
 //            Uri personPhoto = acct.getPhotoUrl();
         }
 
-        mGreeting.setText(greetingString);
+        mGreeting.setText(getString(R.string.greeting, greetingString));
     }
 
 
@@ -152,7 +174,6 @@ public class MoodFragment extends Fragment {
 
         /* ends today */
         Calendar endDate = Calendar.getInstance();
-        //endDate.add(Calendar.MONTH, 1);
 
         // initialize calendar to default to today
         final Calendar defaultDate = Calendar.getInstance();
@@ -206,31 +227,44 @@ public class MoodFragment extends Fragment {
      */
     private void determineIfMoodSliderShouldBeLocked() {
         // if day isn't current
-        mToggleLockSlider.setChecked(true);
-        // if there is already a mood score
+        boolean locked = false;
+        Mood mood = mViewModel.getSelectedMood().getValue();
 
-        // if there was a mood score entered, it is unlocked, and a sufficient amount of time
-        // or the data shifted (for example, going to the other screen, navigating away from the
-        // app, or going to the report tab
+        if (mood.getCalendarDate().before(Calendar.getInstance())) {
+            // not the current date.
+            locked = true;
+        } else if (! mood.isEmpty()){
+            // if there is already a mood score
+            locked = true;
+        }
 
+        mToggleLockSlider.setChecked(locked);
     }
 
     // helper to lock and commit the mood score. will be called whenever
     // there has been a new/changed score
     private void lockAndCommitMood() {
         mViewModel.commitMood(); // put the new score in the database
-        mToggleLockSlider.setChecked(true); // lock the slider
+        // and in the case we destroy the fragment
+        if (null != mToggleLockSlider) {
+            mToggleLockSlider.setChecked(true); // lock the slider
+        }
     }
 
     private void handleMoodSlider() {
         mMoodSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            private TimerTask currentTimerTask;
+
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
                     // this will renormalize the mood score
                     mViewModel.setSelectedMoodScore(progress + Mood.MOOD_MINIMUM);
-                    // and set a timeout -- once this timeout goes off we commit the value
-                    // and lock the value
+
+                    // clear any previous pending mood commits and put this new one on.
+                    mTimerHandler.removeCallbacks(mDelayedMoodCommit);
+                    mTimerHandler.postDelayed( mDelayedMoodCommit, UPDATE_DELAY);
                 }
             }
 
@@ -247,6 +281,7 @@ public class MoodFragment extends Fragment {
 
         // as we start up, match the state of the slider to the state of the lock.
         lockMoodSlider(mToggleLockSlider.isChecked());
+
         mToggleLockSlider.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {

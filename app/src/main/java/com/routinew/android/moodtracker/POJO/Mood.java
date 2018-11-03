@@ -73,6 +73,7 @@ public class Mood {
     public Mood(Calendar date) {
         // this can only be valid on an object creation, never changed to this
         this.moodScore = EMPTY_MOOD;
+        this.date = CalendarUtilities.calendarToTextDate(date);
     }
 
     // for firebase setValue
@@ -122,6 +123,7 @@ public class Mood {
     }
 
     // necessary to determine if mood is actually empty.
+    @Exclude
     public boolean isEmpty() {
         return (this.moodScore == EMPTY_MOOD);
     }

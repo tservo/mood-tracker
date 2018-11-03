@@ -1,13 +1,18 @@
 package com.routinew.android.moodtracker.ViewModels;
 
+import android.arch.core.util.Function;
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
 import android.support.annotation.Nullable;
 
 import com.routinew.android.moodtracker.Data.MoodRepository;
 import com.routinew.android.moodtracker.POJO.Mood;
+import com.routinew.android.moodtracker.Utilities.CalendarUtilities;
+import com.routinew.android.moodtracker.Utilities.CalendarUtilities.GraphRange;
 
 import java.util.Calendar;
 
@@ -15,24 +20,22 @@ import java.util.List;
 
 import timber.log.Timber;
 
+import static com.routinew.android.moodtracker.Utilities.CalendarUtilities.startDateOfGraphRange;
+
 public class MoodViewModel extends ViewModel {
-    /**
-     * for the graph
-     */
-    public enum GraphRange {
-        GRAPH_2_WEEKS,
-        GRAPH_1_MONTH,
-        GRAPH_3_MONTHS,
-        GRAPH_6_MONTHS,
-        GRAPH_1_YEAR
-    }
+
 
 
     private MoodRepository mMoodRepository;
 
     // this transformation handles the link for graphing moods.
     private MutableLiveData<GraphRange> moodDateRange = new MutableLiveData<>(); // start with two weeks
-    private LiveData<List<Mood>> reportMoods;
+    final private LiveData<List<Mood>> reportMoods = Transformations.switchMap(moodDateRange, new Function<GraphRange, LiveData<List<Mood>>>() {
+        @Override
+        public LiveData<List<Mood>> apply(GraphRange range) {
+            return mMoodRepository.getMoodRange(CalendarUtilities.startDateOfGraphRange(range));
+        }
+    });
 
 
     // this transformation retrieves the mood for the current date.
@@ -57,41 +60,11 @@ public class MoodViewModel extends ViewModel {
 
         this.selectedDate.setValue(Calendar.getInstance()); // today
 
+        this.moodDateRange.setValue(CalendarUtilities.GraphRange.GRAPH_2_WEEKS);
 
-        this.moodDateRange.setValue(GraphRange.GRAPH_2_WEEKS);
-
-
-
-
-//        this.reportMoods = Transformations.switchMap(moodDateRange, new Function<GraphRange, LiveData<List<Mood>>>() {
-//            @Override
-//            public LiveData<List<Mood>> apply(GraphRange range) {
-//                Calendar startDate = Calendar.getInstance(); // today
-//                switch (range) {
-//                    case GRAPH_2_WEEKS:
-//                        startDate.add(Calendar.WEEK_OF_YEAR, -2);
-//                        break;
-//                    case GRAPH_1_MONTH:
-//                        startDate.add(Calendar.MONTH, -1);
-//                        break;
-//                    case GRAPH_3_MONTHS:
-//                        startDate.add(Calendar.MONTH, -3);
-//                        break;
-//                    case GRAPH_6_MONTHS:
-//                        startDate.add(Calendar.MONTH, -6);
-//                        break;
-//                    case GRAPH_1_YEAR:
-//                        startDate.add(Calendar.YEAR, -1);
-//                    default:
-//                        Timber.w("mood range invalid -- setting to 2 weeks: %s", range.toString());
-//                        startDate.add(Calendar.WEEK_OF_YEAR, -2);
-//                }
-//                return mMoodRepository.getMoodRange(startDate);
-//            }
-//        });
-
-        this.reportMoods = new MutableLiveData<>();
     }
+
+
 
     public MoodViewModel(MoodRepository moodRepository) {
         this.mMoodRepository = moodRepository;
@@ -137,7 +110,7 @@ public class MoodViewModel extends ViewModel {
         if (newScore == Mood.EMPTY_MOOD || newScore < Mood.MOOD_MINIMUM || newScore > Mood.MOOD_MAXIMUM) {
             Timber.w("setSelectedMoodScore: invalid score %d", newScore);
         }
-        
+
         Mood mood = currentMood.getValue(); // get snapshot
 
         // we don't have a mood yet for this date -- make one!

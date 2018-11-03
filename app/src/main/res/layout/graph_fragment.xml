@@ -8,14 +8,19 @@
 
     <com.jjoe64.graphview.GraphView
         android:id="@+id/graph"
-        android:layout_width="match_parent"
-        android:layout_height="200dip"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="32dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toEndOf="@+id/graph_label_manic"
+        app:layout_constraintTop_toBottomOf="@+id/spinner_label"
+        app:layout_constraintVertical_bias="0.55" />
 
     <Spinner
         android:id="@+id/spinner"
@@ -43,5 +48,30 @@
         app:layout_constraintBaseline_toBaselineOf="@+id/spinner"
         app:layout_constraintEnd_toStartOf="@+id/spinner"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/graph_label_manic"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:contentDescription="@string/label_manic"
+        app:layout_constraintBottom_toTopOf="@+id/graph"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/graph"
+        app:srcCompat="@drawable/ic_sentiment_very_satisfied_black_24dp" />
+
+    <ImageView
+        android:id="@+id/graph_label_depressed"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="8dp"
+        android:contentDescription="@string/label_depressed"
+        app:layout_constraintBottom_toBottomOf="@+id/graph"
+        app:layout_constraintEnd_toEndOf="@+id/graph_label_manic"
+        app:layout_constraintStart_toStartOf="@+id/graph_label_manic"
+        app:layout_constraintTop_toBottomOf="@+id/graph"
+        app:srcCompat="@drawable/ic_sentiment_dissatisfied_black_24dp" />
 
 </android.support.constraint.ConstraintLayout>

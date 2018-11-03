@@ -40,4 +40,8 @@
         completions."
     </string>
     <string name="name_activity_login">LoginActivity</string>
+
+    <!-- greeting strings -->
+    <string name="not_logged_in">Not Logged in</string>
+    <string name="greeting">Hello, %1$s!</string>
 </resources>

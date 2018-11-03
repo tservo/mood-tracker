@@ -1,5 +1,7 @@
 package com.routinew.android.moodtracker.Utilities;
 
+import com.routinew.android.moodtracker.ViewModels.MoodViewModel;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -9,6 +11,17 @@ import java.util.Locale;
 import timber.log.Timber;
 
 public class CalendarUtilities {
+    /**
+     * for the graph
+     */
+    public enum GraphRange {
+        GRAPH_2_WEEKS,
+        GRAPH_1_MONTH,
+        GRAPH_3_MONTHS,
+        GRAPH_6_MONTHS,
+        GRAPH_1_YEAR
+    }
+
     private static SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
     static {
@@ -75,4 +88,33 @@ public class CalendarUtilities {
     }
 
 
+    /**
+     * utility method to get a calendar object with the graphRange specified.
+     * @param graphRange the graph range
+     * @return the calendar object with the start date.
+     */
+    public static Calendar startDateOfGraphRange(GraphRange graphRange) {
+        Calendar startDate = Calendar.getInstance(); // today
+        switch (graphRange) {
+            case GRAPH_2_WEEKS:
+                startDate.add(Calendar.WEEK_OF_YEAR, -2);
+                break;
+            case GRAPH_1_MONTH:
+                startDate.add(Calendar.MONTH, -1);
+                break;
+            case GRAPH_3_MONTHS:
+                startDate.add(Calendar.MONTH, -3);
+                break;
+            case GRAPH_6_MONTHS:
+                startDate.add(Calendar.MONTH, -6);
+                break;
+            case GRAPH_1_YEAR:
+                startDate.add(Calendar.YEAR, -1);
+            default:
+                Timber.w("mood range invalid -- setting to 2 weeks: %s", graphRange.toString());
+                startDate.add(Calendar.WEEK_OF_YEAR, -2);
+        }
+
+        return startDate;
+    }
 }

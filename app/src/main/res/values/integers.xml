@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- values for the mood graphs -->
-    <integer name="graph_2_weeks">1</integer>
-    <integer name="graph_1_month">2</integer>
+    <!-- number of horizontal labels for the dates on the mood graph -->
+    <integer name="num_horizontal_labels">3</integer>
 </resources>

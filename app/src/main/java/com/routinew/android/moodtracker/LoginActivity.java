@@ -94,16 +94,7 @@ public class LoginActivity extends AppCompatActivity  {
 
         ButterKnife.bind(this);
 
-        // install Timber Tree
-        if (BuildConfig.DEBUG) {
-            Timber.plant(new Timber.DebugTree());
 
-            // add the stetho diagnostic tools
-            Stetho.initializeWithDefaults(this);
-            new OkHttpClient.Builder()
-                    .addNetworkInterceptor(new StethoInterceptor())
-                    .build();
-        }
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
