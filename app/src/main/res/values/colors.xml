@@ -3,4 +3,20 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#d81b60</color>
+
+    <!-- empty mood, or not logged in -->
+    <color name="moodEmpty">#999999</color>
+
+    <!-- mood colors correspond to gradient on slider-->
+    <color name="moodMinus5">#350064</color>
+    <color name="moodMinus4">#03306B</color>
+    <color name="moodMinus3">#476673</color>
+    <color name="moodMinus2">#51967B</color>
+    <color name="moodMinus1">#5CCE85</color>
+    <color name="mood0">#64FE8E</color>
+    <color name="moodPlus1">#84EA7D</color>
+    <color name="moodPlus2">#A2D268</color>
+    <color name="moodPlus3">#C1BA54</color>
+    <color name="moodPlus4">#E0A03F</color>
+    <color name="moodPlus5">#FC892E</color>
 </resources>

@@ -44,4 +44,7 @@
     <!-- greeting strings -->
     <string name="not_logged_in">Not Logged in</string>
     <string name="greeting">Hello, %1$s!</string>
+    <string name="please_sign_in">Please sign in to access your data.</string>
+    <string name="NO_QUOTE_FOUND">No quote found.</string>
+    <string name="network_error">Network Error</string>
 </resources>

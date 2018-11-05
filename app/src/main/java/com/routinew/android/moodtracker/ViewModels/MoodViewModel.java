@@ -7,12 +7,14 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
+import android.content.Context;
 import android.support.annotation.Nullable;
 
 import com.routinew.android.moodtracker.Data.MoodRepository;
 import com.routinew.android.moodtracker.POJO.Mood;
 import com.routinew.android.moodtracker.Utilities.CalendarUtilities;
 import com.routinew.android.moodtracker.Utilities.CalendarUtilities.GraphRange;
+import com.routinew.android.moodtracker.Widget.MoodUpdateIntentService;
 
 import java.util.Calendar;
 
@@ -129,10 +131,13 @@ public class MoodViewModel extends ViewModel {
      * this method will commit the current mood to the database.
      * if the current mood has changed from the last read.
      */
-    public void commitMood() {
+    public void commitMood(Context context) {
         Mood mood = currentMood.getValue();
         if ((null != mood) && (!mood.isEmpty()) && currentMoodIsDirty) {
             mMoodRepository.writeMoodToDatabase(mood);
+
+            // and let the widget know too
+            MoodUpdateIntentService.startActionUpdateMoodWidgets(context);
         }
     }
 

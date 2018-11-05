@@ -3,6 +3,7 @@ package com.routinew.android.moodtracker;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
@@ -30,9 +31,12 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.facebook.stetho.Stetho;
 import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -49,6 +53,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.routinew.android.moodtracker.Data.MoodRepository;
+import com.routinew.android.moodtracker.Utilities.QuoteOfDayConnector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,7 +80,7 @@ public class LoginActivity extends AppCompatActivity  {
 
     // UI references.
     @BindView(R.id.signin) SignInButton mSignInButton;
-    @BindView(R.id.signin_screen) LinearLayout mSigninScreen;
+    @BindView(R.id.image_background) ImageView mBackgroundView;
 
     @OnClick(R.id.signin) public void onClick(View v) {
         switch (v.getId()) {
@@ -108,6 +113,35 @@ public class LoginActivity extends AppCompatActivity  {
         mAuth = FirebaseAuth.getInstance();
 
         updateActivity(mAuth.getCurrentUser());
+
+        // here we showcase an asynctask to load a background image from quote of the day
+        // FIXME put text to attribute it.
+        mSignInButton.setEnabled(false);
+        new AsyncTask<Void,Void,String>() {
+
+            @Override
+            protected String doInBackground(Void... voids) {
+                return QuoteOfDayConnector.getBackgroundURL(LoginActivity.this);
+            }
+
+            @Override
+            protected void onPostExecute(String s) {
+                super.onPostExecute(s);
+                if (null == s) {
+                    Timber.w("onPostExecute: no background URL found!");
+                    Toast.makeText(LoginActivity.this, R.string.network_error, Toast.LENGTH_LONG).show();
+                }
+                if (null != s) {
+                    Glide.with(LoginActivity.this)
+                            .load(s)
+                            .into(mBackgroundView);
+
+                    mSignInButton.setEnabled(true);
+                }
+
+
+            }
+        }.execute();
 
     }
 

@@ -7,4 +7,18 @@
         <item>@string/chart_last_6_months</item>
         <item>@string/chart_last_1_year</item>
     </array>
+
+    <array name="mood_colors">
+        <item>@color/moodMinus5</item>
+        <item>@color/moodMinus4</item>
+        <item>@color/moodMinus3</item>
+        <item>@color/moodMinus2</item>
+        <item>@color/moodMinus1</item>
+        <item>@color/mood0</item>
+        <item>@color/moodPlus1</item>
+        <item>@color/moodPlus2</item>
+        <item>@color/moodPlus3</item>
+        <item>@color/moodPlus4</item>
+        <item>@color/moodPlus5</item>
+    </array>
 </resources>

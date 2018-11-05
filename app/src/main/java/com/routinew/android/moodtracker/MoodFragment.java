@@ -199,7 +199,7 @@ public class MoodFragment extends Fragment {
             @Override
             public void onDateSelected(Calendar date, int position) {
                 formatDate(date, position); // handle the calendar display field.
-                mViewModel.commitMood(); // flush the current mood to permanent storage if necessary
+                mViewModel.commitMood(getActivity()); // flush the current mood to permanent storage if necessary
                 mViewModel.selectMood(date);
                 determineIfMoodSliderShouldBeLocked();
             }
@@ -244,7 +244,7 @@ public class MoodFragment extends Fragment {
     // helper to lock and commit the mood score. will be called whenever
     // there has been a new/changed score
     private void lockAndCommitMood() {
-        mViewModel.commitMood(); // put the new score in the database
+        mViewModel.commitMood(getActivity()); // put the new score in the database
         // and in the case we destroy the fragment
         if (null != mToggleLockSlider) {
             mToggleLockSlider.setChecked(true); // lock the slider
@@ -290,7 +290,7 @@ public class MoodFragment extends Fragment {
 
                 // assume that if the user clicks on the lock they want to commit the mood score.
                 if (isChecked) {
-                    mViewModel.commitMood();
+                    mViewModel.commitMood(getActivity());
                 }
             }
         });

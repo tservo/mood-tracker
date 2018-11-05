@@ -15,7 +15,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".DispatchActivity">
+        <activity
+            android:name=".DispatchActivity"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,11 +27,13 @@
         <activity
             android:name=".LoginActivity"
             android:label="@string/title_activity_login"
+            android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <receiver android:name=".Widget.MoodWidget">
             <intent-filter>
@@ -38,11 +42,11 @@
 
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/new_app_widget_info" />
+                android:resource="@xml/mood_widget_info" />
         </receiver>
 
         <service
-            android:name=".WidgetJobIntentService"
+            android:name=".Widget.MoodUpdateIntentService"
             android:exported="false"></service>
     </application>
 

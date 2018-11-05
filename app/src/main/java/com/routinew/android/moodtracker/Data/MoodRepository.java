@@ -23,6 +23,7 @@ import com.routinew.android.moodtracker.POJO.Mood;
 import com.routinew.android.moodtracker.Utilities.CalendarUtilities;
 
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -146,6 +147,15 @@ public class MoodRepository {
         );
     }
 
+    public static Query getMoodQueryForWidget() {
+        if (null == FirebaseAuth.getInstance().getCurrentUser()) {
+            Timber.i("getMoodQueryForWidget: Not logged in");
+            return null;
+        };
+
+        return getMoodDatabaseRef().child(CalendarUtilities.calendarToTextDate(Calendar.getInstance()));
+    }
+
     public void writeMoodToDatabase(Mood mood) {
         DatabaseReference db = getMoodDatabaseRef();
 
@@ -177,7 +187,6 @@ public class MoodRepository {
         startDate.add(Calendar.YEAR, -1);
 
         Calendar currentDate = Calendar.getInstance();
-        currentDate.add(Calendar.DATE,+1);
 
         HashMap<String,Mood> mocks = new HashMap<>();
 
@@ -198,16 +207,26 @@ public class MoodRepository {
      * for getting a random mood score.
      * @return
      */
-    private int generateRandomMoodScore() {
+    private static int generateRandomMoodScore() {
         return new Random().nextInt((Mood.MOOD_MAXIMUM - Mood.MOOD_MINIMUM) + 1) + Mood.MOOD_MINIMUM;
     }
 
     /**
      * test method for generating moods
      * @param date
-     * @return
+     * @param forceEmptyMood return an empty mood instead of a random mood score
+     * @return generated mood for date.
      */
-    private Mood generateMood(Calendar date) {
+    public static Mood generateMood(Calendar date, boolean forceEmptyMood) {
+
+        if (forceEmptyMood) {
+            return new Mood(date);
+        }
+
         return new Mood(generateRandomMoodScore(), date);
+    }
+
+    public static Mood generateMood(Calendar date) {
+        return generateMood(date, false);
     }
 }
