@@ -95,6 +95,10 @@ public class MoodWidget extends AppWidgetProvider {
 
             if (moodScore < -2) {
                 moodIconResId = R.drawable.ic_sentiment_dissatisfied_black_24dp;
+            } else if (moodScore < 1) {
+                moodIconResId=R.drawable.ic_sentiment_neutral_black_24dp;
+            } else if (moodScore < 3) {
+                moodIconResId=R.drawable.ic_sentiment_satisfied_black_24dp;
             } else {
                 moodIconResId = R.drawable.ic_sentiment_very_satisfied_black_24dp;
             }

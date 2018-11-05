@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <SeekBar
+        android:id="@+id/moodSlider"
+        style="@style/MoodSlider"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/mood_slider_height"
+        android:layout_marginStart="@dimen/mood_slider_margin_horizontal"
+        android:layout_marginLeft="@dimen/mood_slider_margin_horizontal"
+        android:layout_marginTop="@dimen/mood_slider_margin_top"
+        android:layout_marginEnd="@dimen/mood_slider_margin_horizontal"
+        android:layout_marginRight="@dimen/mood_slider_margin_horizontal"
+        android:layout_marginBottom="@dimen/mood_slider_margin_bottom"
+        android:max="10"
+        android:progressDrawable="@drawable/mood_slider_gradient"
+        android:thumb="@drawable/ic_circle_white_8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/image_manic"
+        app:layout_constraintStart_toEndOf="@+id/image_depressed"
+        app:layout_constraintVertical_bias="0.301"
+        app:tickMarkTint="@color/colorAccent"
+        app:tickMarkTintMode="multiply"
+        tools:progress="4" />
+
+    <ImageView
+        android:id="@+id/image_depressed"
+        android:layout_width="@dimen/mood_slider_image_size"
+        android:layout_height="@dimen/mood_slider_image_size"
+        android:layout_marginStart="@dimen/mood_slider_image_horizontal_margin"
+        android:layout_marginLeft="@dimen/mood_slider_image_horizontal_margin"
+        android:contentDescription="@string/mood_depressed"
+        app:layout_constraintBottom_toTopOf="@+id/moodSlider"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/moodSlider"
+        app:srcCompat="@drawable/ic_sentiment_dissatisfied_black_24dp" />
+
+    <ImageView
+        android:id="@+id/image_manic"
+        android:layout_width="@dimen/mood_slider_image_size"
+        android:layout_height="@dimen/mood_slider_image_size"
+        android:layout_marginEnd="@dimen/mood_slider_image_horizontal_margin"
+        android:layout_marginRight="@dimen/mood_slider_image_horizontal_margin"
+        android:contentDescription="@string/mood_manic"
+        app:layout_constraintBottom_toTopOf="@+id/moodSlider"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/moodSlider"
+        app:srcCompat="@drawable/ic_sentiment_very_satisfied_black_24dp" />
+</android.support.constraint.ConstraintLayout>

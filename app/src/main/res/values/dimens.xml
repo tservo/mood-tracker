@@ -12,4 +12,10 @@ http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     <dimen name="widget_margin">8dp</dimen>
     <dimen name="widget_min_width">48dp</dimen>
     <dimen name="widget_min_height">48dp</dimen>
+    <dimen name="mood_slider_height">64dp</dimen>
+    <dimen name="mood_slider_margin_horizontal">4dp</dimen>
+    <dimen name="mood_slider_margin_top">8dp</dimen>
+    <dimen name="mood_slider_margin_bottom">2dp</dimen>
+    <dimen name="mood_slider_image_size">48dp</dimen>
+    <dimen name="mood_slider_image_horizontal_margin">8dp</dimen>
 </resources>

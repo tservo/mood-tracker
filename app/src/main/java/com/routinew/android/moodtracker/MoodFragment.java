@@ -41,6 +41,7 @@ import timber.log.Timber;
 public class MoodFragment extends Fragment {
 
     private static final int UPDATE_DELAY = 5000;
+    public static final String TEXTVIEW_DATE_FORMAT = "E, MMM d, yyyy";
 
     private MoodViewModel mViewModel;
 
@@ -139,9 +140,8 @@ public class MoodFragment extends Fragment {
      * @param position
      */
     private void formatDate(Calendar date, int position) {
-        String selectedDateStr = DateFormat.format("EEE\n MMM d, yyyy", date).toString();
+        String selectedDateStr = DateFormat.format(TEXTVIEW_DATE_FORMAT, date).toString();
         mCalendarDate.setText(selectedDateStr);
-        //Toast.makeText(getContext(), selectedDateStr + " selected!", Toast.LENGTH_SHORT).show();
         Timber.i("onDateSelected: %s - Position = %s", selectedDateStr ,position);
     }
 
