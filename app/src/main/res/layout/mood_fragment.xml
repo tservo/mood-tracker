@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
+android:focusable="true"
     tools:context=".MoodFragment">
 
     <TextView
@@ -30,7 +30,13 @@
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:textColorSelected="#FFFF" />
+        app:textColorSelected="#FFFF"
+        android:nextFocusForward="@+id/layout_mood_slider"
+        android:focusable="true"
+
+        android:descendantFocusability="afterDescendants">
+        <requestFocus />
+    </devs.mulham.horizontalcalendar.HorizontalCalendarView>
 
     <include
         android:id="@+id/layout_mood_slider"
@@ -43,7 +49,9 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/guideline4"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.0"
+        android:nextFocusForward="@+id/button_lock_slider"
+        />
 
 
     <TextView

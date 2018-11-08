@@ -193,6 +193,11 @@ public class MoodFragment extends Fragment {
                     }
 
                 })
+//                .configure()
+//                    .formatMiddleText("EEE, MMM dd")
+//                    .showTopText(false)
+//                    .showBottomText(false)
+//                .end()
                 .build();
 
         mHorizontalCalendar.setCalendarListener(new HorizontalCalendarListener() {

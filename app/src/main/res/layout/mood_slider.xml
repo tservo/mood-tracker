@@ -25,6 +25,8 @@
         app:layout_constraintVertical_bias="0.301"
         app:tickMarkTint="@color/colorAccent"
         app:tickMarkTintMode="multiply"
+        android:focusable="true"
+        android:contentDescription="@string/select_your_mood"
         tools:progress="4" />
 
     <ImageView

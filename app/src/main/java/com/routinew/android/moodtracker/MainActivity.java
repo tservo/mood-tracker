@@ -66,17 +66,8 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.tab_layout)  TabLayout mTabLayout;
     @BindView(R.id.toolbar)  Toolbar mToolbar;
-    @BindView(R.id.sign_out_button) MaterialButton mSignoutButton;
     @BindView(R.id.logged_in_screen) LinearLayout mLoggedInScreen;
 
-    @OnClick(R.id.sign_out_button) public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.sign_out_button:
-                signOut();
-                break;
-            // ...
-        }
-    }
 
     private GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth mAuth;

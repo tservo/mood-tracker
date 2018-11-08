@@ -53,43 +53,30 @@ public class MoodWidget extends AppWidgetProvider {
                 0);
         views.setOnClickPendingIntent(R.id.widget_top, appPendingIntent);
 
-        // https://code.tutsplus.com/tutorials/code-a-widget-for-your-android-app-updating-your-widget--cms-30528
-//        Intent selfUpdate = new Intent(context, MoodWidget.class);
-//        selfUpdate.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-//
-//        //Update the current widget instance only, by creating an array that contains the widget’s unique ID//
-//
-//        int[] idArray = new int[]{appWidgetId};
-//        selfUpdate.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, idArray);
-//
-//        //Wrap the intent as a PendingIntent, using PendingIntent.getBroadcast()//
-//
-//        PendingIntent pendingUpdate = PendingIntent.getBroadcast(
-//                context, appWidgetId, selfUpdate,
-//                PendingIntent.FLAG_UPDATE_CURRENT);
-//
-//        //Send the pending intent in response to the user tapping the widget
-//
-//        views.setOnClickPendingIntent(R.id.widget_top, pendingUpdate);
-
-
 
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);
     }
 
 
-
+    /**
+     * handles updating the widget layout from the mood specified.
+     * @param context
+     * @param views
+     * @param mood
+     */
     private static void updateWidgetLayoutFromMood(Context context, RemoteViews views, Mood mood) {
         int moodIconResId;
         int actionIconResId;
 
         Resources res = context.getResources();
         int backgroundColor = R.color.moodEmpty;
+        String contentDescription;
 
         if (null == mood || mood.isEmpty()) {
             moodIconResId = R.drawable.ic_person_mood_log;
             actionIconResId = R.drawable.ic_add_black_24dp;
+            contentDescription = context.getString( (null == mood) ? R.string.not_logged_in : R.string.mood_not_set);
         } else {
             int moodScore = mood.getMoodScore();
 
@@ -104,15 +91,23 @@ public class MoodWidget extends AppWidgetProvider {
             }
             actionIconResId = R.drawable.ic_edit_black_24dp;
 
+            // the resource arrays.
            TypedArray colors = res.obtainTypedArray(R.array.mood_colors);
+           String[] moodDescriptions = res.getStringArray(R.array.mood_scale);
+
             // normalize to 0..10 for array
-            backgroundColor = colors.getResourceId(moodScore - Mood.MOOD_MINIMUM, R.color.moodEmpty);
+            int indexedScore = moodScore - Mood.MOOD_MINIMUM; // reset to a 0-10 scale
+
+
+            backgroundColor = colors.getResourceId(indexedScore, R.color.moodEmpty);
+            contentDescription = moodDescriptions[indexedScore];
             colors.recycle();
 
             Timber.d("updateWidgetLayoutFromMood: backgroundColor: %s", backgroundColor);
         }
 
         setImageViewVectorDrawable(context, views, R.id.appwidget_moodIcon, moodIconResId);
+       // views.setString(R.id.appwidget_moodIcon, "setContentDescription", contentDescription);
         setImageViewVectorDrawable(context, views, R.id.appwidget_action, actionIconResId);
 
         setBackground(context, views, backgroundColor);
