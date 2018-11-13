@@ -4,7 +4,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 
 import timber.log.Timber;
 
@@ -20,7 +19,7 @@ public class CalendarUtilities {
         GRAPH_1_YEAR
     }
 
-    private static final SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+    private static final SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     static {
         sDateFormat.setLenient(false);

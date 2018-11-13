@@ -63,7 +63,7 @@ public class MoodWidget extends AppWidgetProvider {
 
         Resources res = context.getResources();
         int backgroundColor = R.color.moodEmpty;
-        String contentDescription;
+        String contentDescription = "";
 
         if (null == mood || mood.isEmpty()) {
             moodIconResId = R.drawable.ic_person_mood_log;
@@ -90,6 +90,7 @@ public class MoodWidget extends AppWidgetProvider {
             // normalize to 0..10 for array
             int indexedScore = moodScore - Mood.MOOD_MINIMUM; // reset to a 0-10 scale
 
+            contentDescription = moodDescriptions[indexedScore];
 
             backgroundColor = colors.getResourceId(indexedScore, R.color.moodEmpty);
             colors.recycle();
@@ -98,8 +99,9 @@ public class MoodWidget extends AppWidgetProvider {
         }
 
         setImageViewVectorDrawable(context, views, R.id.appwidget_moodIcon, moodIconResId);
-       // views.setString(R.id.appwidget_moodIcon, "setContentDescription", contentDescription);
-        setImageViewVectorDrawable(context, views, R.id.appwidget_action, actionIconResId);
+        views.setContentDescription(R.id.appwidget_moodIcon, contentDescription);
+        views.setContentDescription(R.id.appwidget_background, contentDescription);
+        //setImageViewVectorDrawable(context, views, R.id.appwidget_action, actionIconResId);
 
         setBackground(context, views, backgroundColor);
 
@@ -118,7 +120,7 @@ public class MoodWidget extends AppWidgetProvider {
                 Color.WHITE: Color.BLACK;
 
         views.setInt(R.id.appwidget_moodIcon,"setColorFilter",contrastColor);
-        views.setInt(R.id.appwidget_action, "setColorFilter", contrastColor);
+        //views.setInt(R.id.appwidget_action, "setColorFilter", contrastColor);
 
         views.setInt(R.id.appwidget_background,"setBackgroundResource", backgroundColor);
     }

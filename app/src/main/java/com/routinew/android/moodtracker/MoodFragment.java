@@ -125,7 +125,7 @@ public class MoodFragment extends Fragment {
                 mViewModel.getSelectedMood().removeObserver(this);
             }
         });
-        
+
         handleCalendar(); // create calendar
 
         // and give it the ability to change on date change

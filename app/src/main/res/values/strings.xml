@@ -36,6 +36,7 @@
     <string name="mood_not_set">Mood Not Set</string>
     <string name="no_mood_data">No Mood Data to Graph</string>
     <string name="mood_data_offline">Mood Data Offline</string>
+    <string name="login_welcome">Welcome!</string>
 
     <!-- mood descriptions -->
     <string-array name="mood_scale">

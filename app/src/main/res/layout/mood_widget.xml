@@ -11,6 +11,7 @@
         android:id="@+id/appwidget_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:contentDescription="@string/mood_not_set"
         android:background="@color/moodEmpty"/>
 
     <FrameLayout
@@ -23,12 +24,13 @@
             android:id="@+id/appwidget_moodIcon"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:contentDescription="@string/mood_not_set"
             android:adjustViewBounds="true"
             android:cropToPadding="true"
             android:scaleType="fitCenter"
             tools:src="@drawable/ic_sentiment_dissatisfied_black_24dp" />
 
-
+    <!--
         <ImageView
             android:visibility="gone"
                 android:id="@+id/appwidget_action"
@@ -39,7 +41,7 @@
                 android:scaleType="fitCenter"
                 tools:src="@drawable/ic_edit_black_24dp"
                 />
-
+    -->
 
     </FrameLayout>
 </FrameLayout>

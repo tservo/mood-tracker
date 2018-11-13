@@ -1,7 +1,5 @@
 package com.routinew.android.moodtracker;
 
-import android.content.Context;
-
 // --Commented out by Inspection START (2018/11/8, 13:13):
 ///**
 // * Instrumented test, which will execute on an Android device.
