@@ -11,6 +11,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
@@ -43,7 +44,14 @@ public class MoodRepository {
 
     // singleton constructor
     private MoodRepository() {
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true); // offline persistence is useful for this app.
+        try {
+            FirebaseDatabase.getInstance().setPersistenceEnabled(true); // offline persistence is useful for this app.
+        } catch (DatabaseException e) {
+            // there might be an issue with the instance being used before the persistence being enabled.
+            // catch it, log it, and move on.
+            Timber.w(e);
+        }
+
         DatabaseReference connectedRef = FirebaseDatabase.getInstance().getReference(".info/connected");
         connectedRef.addValueEventListener(new ValueEventListener() {
             @Override

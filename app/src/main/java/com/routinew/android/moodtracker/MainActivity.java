@@ -174,21 +174,6 @@ public class MainActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Void> task) {
                         // we've signed out, so no account to pass.
                         updateActivity(null);
-// --Commented out by Inspection START (2018/11/8, 13:13):
-//                    }
-//                });
-//    }
-//
-//    /**
-//     * revoke access to the current google account
-//     */
-//    private void revokeAccess() {
-//        mGoogleSignInClient.revokeAccess()
-//                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<Void> task) {
-//                        // ...
-// --Commented out by Inspection STOP (2018/11/8, 13:13)
                     }
                 });
     }
