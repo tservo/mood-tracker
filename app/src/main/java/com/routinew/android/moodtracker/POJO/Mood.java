@@ -22,7 +22,9 @@ public class Mood {
     public static final int MOOD_MAXIMUM = 5;
     public static final int EMPTY_MOOD = -99;
 
-    private String date; // in yyyy-MM-dd format
+    @NonNull
+    private String date = "1975-12-31"; // in yyyy-MM-dd format -- dummy date that should never be used.
+
     private int moodScore;
 
     // there might be more information here to use
@@ -40,7 +42,7 @@ public class Mood {
      * @param moodScore
      * @param date -- timestamp
      */
-    public Mood(int moodScore, String date) {
+    public Mood(int moodScore, @NonNull String date) {
         if (moodScore < MOOD_MINIMUM || moodScore > MOOD_MAXIMUM)
             throw new IllegalArgumentException(String.format(Locale.getDefault(), "%d not between %d and %d",
                     moodScore , MOOD_MINIMUM, MOOD_MAXIMUM));
@@ -99,28 +101,40 @@ public class Mood {
         this.moodScore = moodScore;
     }
 
+    @NonNull
     public String getDate() {
         return this.date;
     }
 
     // this isn't a getter for you, Firebase
     @Exclude
+    @NonNull
     public Calendar getCalendarDate() {
-        return CalendarUtilities.textDateToCalendar(this.date);
-    }
-
-    // only the serializer should use this!
-    public void setDate(String date) {
-        if (validateDate(date)) {
-            this.date = date;
+        Calendar c =  CalendarUtilities.textDateToCalendar(this.date);
+        if (null == c) {
+            throw new IllegalStateException("Date field is invalid "+this.date);
+            // there is no way we have this.date set improperly or to null.
         }
+
+        return c;
     }
 
-    // this isn't the setter you are looking for, Firebase
-    @Exclude
-    public void setDate(Calendar date) {
-        this.date = CalendarUtilities.calendarToTextDate(date);
-    }
+// --Commented out by Inspection START (2018/11/8, 13:13):
+//    // only the serializer should use this!
+//    public void setDate(String date) {
+//        if (validateDate(date)) {
+//            this.date = date;
+//        }
+//    }
+// --Commented out by Inspection STOP (2018/11/8, 13:13)
+
+// --Commented out by Inspection START (2018/11/8, 13:13):
+//    // this isn't the setter you are looking for, Firebase
+//    @Exclude
+//    public void setDate(Calendar date) {
+//        this.date = CalendarUtilities.calendarToTextDate(date);
+//    }
+// --Commented out by Inspection STOP (2018/11/8, 13:13)
 
     // necessary to determine if mood is actually empty.
     @Exclude
@@ -133,7 +147,7 @@ public class Mood {
         return String.format(Locale.getDefault(),"{Mood date=%s moodScore=%d}",date, moodScore);
     }
 
-    private static Comparator<Mood> sDateComparator = new Comparator<Mood>() {
+    private static final Comparator<Mood> sDateComparator = new Comparator<Mood>() {
         @Override
         public int compare(Mood o1, Mood o2) {
             return (int) (CalendarUtilities.textDateToLong(o1.date) - CalendarUtilities.textDateToLong(o2.date));

@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
@@ -23,7 +24,6 @@ import com.routinew.android.moodtracker.ViewModels.MoodViewModel;
 import com.routinew.android.moodtracker.ViewModels.MoodViewModelFactory;
 
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,6 +44,7 @@ public class GraphFragment extends Fragment {
 
     @BindView(R.id.graph) GraphView mGraphView;
     @BindView(R.id.spinner) Spinner mReportSpinner;
+    @BindView(R.id.no_mood_data_label) TextView mNoMoodDataLabel;
 
     @OnItemSelected(R.id.spinner) void onSpinnerItemSelected(int position) {
         if (null != mViewModel) {
@@ -103,7 +104,7 @@ public class GraphFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         MoodViewModelFactory moodViewModelFactory = new MoodViewModelFactory(MoodRepository.getInstance());
-        mViewModel = ViewModelProviders.of(getActivity(), moodViewModelFactory).get(MoodViewModel.class);
+        mViewModel = ViewModelProviders.of(requireActivity(), moodViewModelFactory).get(MoodViewModel.class);
 
         // initialize and handle changes
         initializeGraph();
@@ -171,10 +172,20 @@ public class GraphFragment extends Fragment {
 
     // here we take the mood data and plot it out.
     private void handleGraph(List<Mood> moods) {
-        if (null == moods) {
-            Timber.w("called with null moods list");
+        if (null == moods || moods.isEmpty()) {
+            if (null == moods) {
+                Timber.w("called with null moods list"); // this shouldn't happen
+            }
+
+            mGraphView.setVisibility(View.GONE);
+            mNoMoodDataLabel.setVisibility(View.VISIBLE);
             return;
         }
+
+
+        // we have a graph to show
+        mNoMoodDataLabel.setVisibility(View.GONE);
+        mGraphView.setVisibility(View.VISIBLE);
 
         // clean up.
         mGraphView.removeAllSeries();

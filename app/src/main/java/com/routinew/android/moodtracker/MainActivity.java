@@ -3,7 +3,6 @@ package com.routinew.android.moodtracker;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.button.MaterialButton;
 
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -16,7 +15,6 @@ import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import android.widget.LinearLayout;
 
@@ -34,7 +32,6 @@ import com.google.firebase.auth.FirebaseUser;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import timber.log.Timber;
 
 
@@ -56,16 +53,16 @@ public class MainActivity extends AppCompatActivity {
     /**
      * The {@link ViewPager} that will host the section contents.
      */
-    @BindView(R.id.container)  ViewPager mViewPager;
+    @BindView(R.id.container) ViewPager mViewPager;
 
     private static final int NUM_TABS = 2; // mood, and graph
     private static final int MOOD_TAB = 0;
     private static final int GRAPH_TAB = 1;
 
-    private static final int RC_SIGN_IN = 405;
+    // --Commented out by Inspection (2018/11/8, 13:13):private static final int RC_SIGN_IN = 405;
 
-    @BindView(R.id.tab_layout)  TabLayout mTabLayout;
-    @BindView(R.id.toolbar)  Toolbar mToolbar;
+    @BindView(R.id.tab_layout) TabLayout mTabLayout;
+    @BindView(R.id.toolbar) Toolbar mToolbar;
     @BindView(R.id.logged_in_screen) LinearLayout mLoggedInScreen;
 
 
@@ -124,11 +121,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -182,19 +174,21 @@ public class MainActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Void> task) {
                         // we've signed out, so no account to pass.
                         updateActivity(null);
-                    }
-                });
-    }
-
-    /**
-     * revoke access to the current google account
-     */
-    private void revokeAccess() {
-        mGoogleSignInClient.revokeAccess()
-                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        // ...
+// --Commented out by Inspection START (2018/11/8, 13:13):
+//                    }
+//                });
+//    }
+//
+//    /**
+//     * revoke access to the current google account
+//     */
+//    private void revokeAccess() {
+//        mGoogleSignInClient.revokeAccess()
+//                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<Void> task) {
+//                        // ...
+// --Commented out by Inspection STOP (2018/11/8, 13:13)
                     }
                 });
     }
@@ -204,12 +198,12 @@ public class MainActivity extends AppCompatActivity {
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+    class SectionsPagerAdapter extends FragmentPagerAdapter {
         // member variables
 
 
 
-        public SectionsPagerAdapter(FragmentManager fm) {
+        SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 

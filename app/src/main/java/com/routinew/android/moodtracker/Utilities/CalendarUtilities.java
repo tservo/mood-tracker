@@ -1,7 +1,5 @@
 package com.routinew.android.moodtracker.Utilities;
 
-import com.routinew.android.moodtracker.ViewModels.MoodViewModel;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -22,7 +20,7 @@ public class CalendarUtilities {
         GRAPH_1_YEAR
     }
 
-    private static SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+    private static final SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
     static {
         sDateFormat.setLenient(false);
@@ -33,22 +31,35 @@ public class CalendarUtilities {
      * @param calendar
      * @return
      */
-    private static void setToMidnight(Calendar calendar) {
-        calendar.set(Calendar.HOUR,0);
+    public static void setToMidnight(Calendar calendar) {
+        calendar.set(Calendar.HOUR_OF_DAY,0);
         calendar.set(Calendar.MINUTE,0);
         calendar.set(Calendar.SECOND,0);
         calendar.set(Calendar.MILLISECOND,0);
     }
 
     /**
-     * get the timestamp of the supplied calendar
-     * @param calendar
-     * @return
+     * this method returns a calendar with today's date standardized at midnight
+     * @return calendar with time at 0:00:00.000
      */
-    public static long calendarToLong(Calendar calendar) {
-        setToMidnight(calendar);
-        return calendar.getTimeInMillis();
+    public static Calendar today() {
+        Calendar c = Calendar.getInstance();
+        setToMidnight(c);
+        return c;
     }
+
+
+// --Commented out by Inspection START (2018/11/8, 13:13):
+//    /**
+//     * get the timestamp of the supplied calendar
+//     * @param calendar
+//     * @return
+//     */
+//    public static long calendarToLong(Calendar calendar) {
+//        setToMidnight(calendar);
+//        return calendar.getTimeInMillis();
+//    }
+// --Commented out by Inspection STOP (2018/11/8, 13:13)
 
     /**
      * turns a calendar into a text date

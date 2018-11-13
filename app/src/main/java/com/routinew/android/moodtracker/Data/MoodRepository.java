@@ -1,12 +1,9 @@
 package com.routinew.android.moodtracker.Data;
 
-import android.arch.core.util.Function;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.Transformations;
-import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -16,21 +13,16 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.routinew.android.moodtracker.POJO.Mood;
 import com.routinew.android.moodtracker.Utilities.CalendarUtilities;
 
-import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Random;
 
 import timber.log.Timber;
@@ -44,10 +36,28 @@ public class MoodRepository {
     // singleton instance
     private static MoodRepository sMoodRepository;
 
+    // set up a livedata to listen to whether the database is online or not.
+    private final static MutableLiveData<Boolean> sIsConnected = new MutableLiveData<>();
+
+    public static LiveData<Boolean> databaseIsConnected() { return sIsConnected;}
 
     // singleton constructor
     private MoodRepository() {
-        mockMoods();
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true); // offline persistence is useful for this app.
+        DatabaseReference connectedRef = FirebaseDatabase.getInstance().getReference(".info/connected");
+        connectedRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                boolean connected = snapshot.getValue(Boolean.class);
+                sIsConnected.setValue(connected);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                Timber.w("Listener was cancelled at .info/connected");
+            }
+        });
+        //mockMoods();
     }
 
     private static DatabaseReference getMoodDatabaseRef() {
@@ -96,9 +106,9 @@ public class MoodRepository {
         moodsLiveData.addSource(queryLiveData, new Observer<DataSnapshot>() {
             @Override
             public void onChanged(@Nullable final DataSnapshot dataSnapshot) {
-                Timber.i("Value: %s", dataSnapshot.toString());
 
                 if (null != dataSnapshot) {
+                    Timber.i("Value: %s", dataSnapshot.toString());
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -124,25 +134,25 @@ public class MoodRepository {
      */
     public void getMoodAtDate(final Calendar calendar, final MutableLiveData<Mood> moodMutableLiveData) {
         Query query = getMoodDatabaseRef().child(CalendarUtilities.calendarToTextDate(calendar));
-
+        // use this empty mood as a placeholder until we have pulled the correct date.
+        moodMutableLiveData.setValue(new Mood(calendar));
 
         query.addListenerForSingleValueEvent(new ValueEventListener() {
              @Override
              public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                  Mood mood = dataSnapshot.getValue(Mood.class);
-                 // if not, create a new, empty mood as a default
-                 if (null == mood) {
-                     mood = new Mood(calendar);
+                 // if we found a mood, replace it with this one.
+                 if (null != mood) {
+                     moodMutableLiveData.setValue(mood);
                  }
-
-                 moodMutableLiveData.setValue(mood);
              }
 
              @Override
              public void onCancelled(@NonNull DatabaseError databaseError) {
                  Timber.w(databaseError.toException(), "getMoodAtDate:onCancelled");
              }
+
          }
         );
     }
@@ -151,7 +161,7 @@ public class MoodRepository {
         if (null == FirebaseAuth.getInstance().getCurrentUser()) {
             Timber.i("getMoodQueryForWidget: Not logged in");
             return null;
-        };
+        }
 
         return getMoodDatabaseRef().child(CalendarUtilities.calendarToTextDate(Calendar.getInstance()));
     }
@@ -183,10 +193,10 @@ public class MoodRepository {
     // create a list of moods for the past month
 
     private void mockMoods() {
-        Calendar startDate = Calendar.getInstance();
+        Calendar startDate = CalendarUtilities.today();
         startDate.add(Calendar.YEAR, -1);
 
-        Calendar currentDate = Calendar.getInstance();
+        Calendar currentDate = CalendarUtilities.today();
 
         HashMap<String,Mood> mocks = new HashMap<>();
 
@@ -217,7 +227,7 @@ public class MoodRepository {
      * @param forceEmptyMood return an empty mood instead of a random mood score
      * @return generated mood for date.
      */
-    public static Mood generateMood(Calendar date, boolean forceEmptyMood) {
+    private static Mood generateMood(Calendar date, boolean forceEmptyMood) {
 
         if (forceEmptyMood) {
             return new Mood(date);
@@ -226,7 +236,7 @@ public class MoodRepository {
         return new Mood(generateRandomMoodScore(), date);
     }
 
-    public static Mood generateMood(Calendar date) {
+    private static Mood generateMood(Calendar date) {
         return generateMood(date, false);
     }
 }

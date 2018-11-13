@@ -1,4 +1,4 @@
-package com.routinew.android.moodtracker.Widget;
+package com.routinew.android.moodtracker.widget;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -10,23 +10,15 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.ColorUtils;
 import android.widget.RemoteViews;
 
-import com.routinew.android.moodtracker.Data.MoodRepository;
 import com.routinew.android.moodtracker.DispatchActivity;
 import com.routinew.android.moodtracker.POJO.Mood;
 import com.routinew.android.moodtracker.R;
-
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Locale;
-import java.util.Random;
 
 import timber.log.Timber;
 
@@ -35,8 +27,8 @@ import timber.log.Timber;
  */
 public class MoodWidget extends AppWidgetProvider {
 
-    static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
-                                Mood mood, int appWidgetId) {
+    private static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
+                                        Mood mood, int appWidgetId) {
 
 
         // Construct the RemoteViews object
@@ -100,7 +92,6 @@ public class MoodWidget extends AppWidgetProvider {
 
 
             backgroundColor = colors.getResourceId(indexedScore, R.color.moodEmpty);
-            contentDescription = moodDescriptions[indexedScore];
             colors.recycle();
 
             Timber.d("updateWidgetLayoutFromMood: backgroundColor: %s", backgroundColor);
@@ -146,13 +137,15 @@ public class MoodWidget extends AppWidgetProvider {
             views.setImageViewResource(viewResId, drawableResId);
         } else {
             Drawable d = ContextCompat.getDrawable(context, drawableResId);
-            Bitmap b = Bitmap.createBitmap(d.getIntrinsicWidth(),
-                    d.getIntrinsicHeight(),
-                    Bitmap.Config.ARGB_8888);
-            Canvas c = new Canvas(b);
-            d.setBounds(0, 0, c.getWidth(), c.getHeight());
-            d.draw(c);
-            views.setImageViewBitmap(viewResId, b);
+            if (null != d) {
+                Bitmap b = Bitmap.createBitmap(d.getIntrinsicWidth(),
+                        d.getIntrinsicHeight(),
+                        Bitmap.Config.ARGB_8888);
+                Canvas c = new Canvas(b);
+                d.setBounds(0, 0, c.getWidth(), c.getHeight());
+                d.draw(c);
+                views.setImageViewBitmap(viewResId, b);
+            }
         }
     }
 

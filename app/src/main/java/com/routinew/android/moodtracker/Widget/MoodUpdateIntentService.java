@@ -1,4 +1,4 @@
-package com.routinew.android.moodtracker.Widget;
+package com.routinew.android.moodtracker.widget;
 
 import android.app.IntentService;
 import android.appwidget.AppWidgetManager;
@@ -15,7 +15,6 @@ import com.routinew.android.moodtracker.Data.MoodRepository;
 import com.routinew.android.moodtracker.POJO.Mood;
 
 import java.util.Calendar;
-import java.util.Random;
 
 import timber.log.Timber;
 
@@ -26,11 +25,8 @@ import timber.log.Timber;
 public class MoodUpdateIntentService extends IntentService {
     // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
     private static final String ACTION_UPDATE_MOOD_WIDGETS =
-            "com.routinew.android.moodtracker.Widget.action.UPDATE_MOOD_WIDGETS";
+            "com.routinew.android.moodtracker.widget.action.UPDATE_MOOD_WIDGETS";
 
-    // TODO: Rename parameters
-    private static final String EXTRA_PARAM1 = "com.routinew.android.moodtracker.Widget.extra.PARAM1";
-    private static final String EXTRA_PARAM2 = "com.routinew.android.moodtracker.Widget.extra.PARAM2";
 
     public MoodUpdateIntentService() {
         super("MoodUpdateIntentService");
@@ -46,8 +42,7 @@ public class MoodUpdateIntentService extends IntentService {
     public static void startActionUpdateMoodWidgets(Context context) {
         Intent intent = new Intent(context, MoodUpdateIntentService.class);
         intent.setAction(ACTION_UPDATE_MOOD_WIDGETS);
-//        intent.putExtra(EXTRA_PARAM1, param1);
-//        intent.putExtra(EXTRA_PARAM2, param2);
+
         context.startService(intent);
     }
 
@@ -57,14 +52,9 @@ public class MoodUpdateIntentService extends IntentService {
         if (intent != null) {
             final String action = intent.getAction();
             if (ACTION_UPDATE_MOOD_WIDGETS.equals(action)) {
-//                final String param1 = intent.getStringExtra(EXTRA_PARAM1);
-//                final String param2 = intent.getStringExtra(EXTRA_PARAM2);
+
                 handleActionUpdateMoodWidgets();
-            } // else if (ACTION_BAZ.equals(action)) {
-//                final String param1 = intent.getStringExtra(EXTRA_PARAM1);
-//                final String param2 = intent.getStringExtra(EXTRA_PARAM2);
-//                handleActionBaz(param1, param2);
-//            }
+            }
         }
     }
 
@@ -73,7 +63,6 @@ public class MoodUpdateIntentService extends IntentService {
      * parameters.
      */
     private void handleActionUpdateMoodWidgets() {
-        // TODO: Handle action Foo
             final AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
             final int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(this, MoodWidget.class));
 

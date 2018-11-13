@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- number of horizontal labels for the dates on the mood graph -->
-    <integer name="num_horizontal_labels">3</integer>
 </resources>

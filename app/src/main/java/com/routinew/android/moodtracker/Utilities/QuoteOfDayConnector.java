@@ -3,7 +3,6 @@ package com.routinew.android.moodtracker.Utilities;
 import android.content.Context;
 import android.net.Uri;
 
-import com.facebook.stetho.json.annotation.JsonValue;
 import com.routinew.android.moodtracker.R;
 
 import org.json.JSONException;
@@ -29,7 +28,7 @@ public class QuoteOfDayConnector {
     private static final String QOD_URL = "http://"+QOD_HOSTNAME+"/qod.json";
 
 
-    public static String getJsonPayload() {
+    private static String getJsonPayload() {
         if (isOffline()) return null;
 
         return getNetworkResponse(createQuoteURL());

@@ -16,7 +16,7 @@ import timber.log.Timber;
  * https://firebase.googleblog.com/2017/12/using-android-architecture-components.html
  */
 
-public class FirebaseQueryLiveData extends LiveData<DataSnapshot> {
+class FirebaseQueryLiveData extends LiveData<DataSnapshot> {
 
     private final Query query;
     private final MyValueEventListener listener = new MyValueEventListener();
@@ -25,9 +25,11 @@ public class FirebaseQueryLiveData extends LiveData<DataSnapshot> {
         this.query = query;
     }
 
-    public FirebaseQueryLiveData(DatabaseReference ref) {
-        this.query = ref;
-    }
+// --Commented out by Inspection START (2018/11/8, 13:13):
+//    public FirebaseQueryLiveData(DatabaseReference ref) {
+//        this.query = ref;
+//    }
+// --Commented out by Inspection STOP (2018/11/8, 13:13)
 
     @Override
     protected void onActive() {
