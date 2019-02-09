@@ -1,5 +1,5 @@
 # mood-tracker
-Daily Mood Tracker
+## Daily Mood Tracker
 
 Daily Mood Tracker allows a person with depression, bipolar disorder, etc. easily select and change a mood score for the day.  Right now, there are options
 to chart past moods over various time periods. In addition, the app stores onto the cloud, with the google firebase realtime database.
