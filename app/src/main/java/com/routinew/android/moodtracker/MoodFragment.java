@@ -21,7 +21,7 @@ import android.widget.ToggleButton;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.routinew.android.moodtracker.Data.MoodRepository;
+import com.routinew.android.moodtracker.Data.FirebaseRealtimeDatabase.FirebaseRealtimeDatabaseMoodRepository;
 import com.routinew.android.moodtracker.POJO.Mood;
 import com.routinew.android.moodtracker.Utilities.CalendarUtilities;
 import com.routinew.android.moodtracker.ViewModels.MoodViewModel;
@@ -96,12 +96,12 @@ public class MoodFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        MoodViewModelFactory moodViewModelFactory = new MoodViewModelFactory(MoodRepository.getInstance());
+        MoodViewModelFactory moodViewModelFactory = new MoodViewModelFactory(FirebaseRealtimeDatabaseMoodRepository.getInstance());
 
         mViewModel = ViewModelProviders.of(requireActivity(),moodViewModelFactory).get(MoodViewModel.class);
 
         // handle if we're offline
-        MoodRepository.databaseIsConnected().observe(this, new Observer<Boolean>() {
+        FirebaseRealtimeDatabaseMoodRepository.databaseIsConnected().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(@Nullable Boolean isOnline) {
                 handleIfOnline(isOnline);
@@ -237,13 +237,6 @@ public class MoodFragment extends Fragment {
                 .datesNumberOnScreen(5)
                 .defaultSelectedDate(defaultDate);
 
-
-//        builder.configure()
-//            .formatMiddleText("EEE, MMM dd")
-//            .showTopText(false)
-//            .showBottomText(false)
-//        .end();
-
         mHorizontalCalendar = builder.build();
 
         mHorizontalCalendar.setCalendarListener(new HorizontalCalendarListener() {
@@ -322,10 +315,7 @@ public class MoodFragment extends Fragment {
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (fromUser) {
-
-                   //
-                }
+                //
             }
 
             @Override

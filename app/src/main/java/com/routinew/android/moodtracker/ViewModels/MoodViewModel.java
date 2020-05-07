@@ -26,7 +26,6 @@ import timber.log.Timber;
 public class MoodViewModel extends ViewModel {
 
 
-
     private final MoodRepository mMoodRepository;
 
     // this transformation handles the link for graphing moods.
@@ -73,8 +72,8 @@ public class MoodViewModel extends ViewModel {
             @Override
             public void onChanged(@Nullable Calendar newDate) {
                 if (null == newDate) return;
-                
-                Timber.d("selectedDate: date change: %s/%s/%s",newDate.get(Calendar.YEAR), newDate.get(Calendar.MONTH), newDate.get(Calendar.DATE));
+
+                Timber.d("selectedDate: date change: %s/%s/%s", newDate.get(Calendar.YEAR), newDate.get(Calendar.MONTH), newDate.get(Calendar.DATE));
 
                 mMoodRepository.getMoodAtDate(newDate, currentMood);
             }
@@ -91,7 +90,6 @@ public class MoodViewModel extends ViewModel {
     }
 
 
-
     public MoodViewModel(MoodRepository moodRepository) {
         this.mMoodRepository = moodRepository;
         initializeData();
@@ -101,11 +99,16 @@ public class MoodViewModel extends ViewModel {
     /**
      * find the currently selected date for initializing the horizontal calendar
      * -- doesn't need to be observed as livedata.
+     *
      * @return a calendar object of the selected date
      */
-    public LiveData<Calendar> getSelectedDate() { return selectedDate; }
+    public LiveData<Calendar> getSelectedDate() {
+        return selectedDate;
+    }
+
     /**
      * get the currently selected mood to show.
+     *
      * @return
      */
     public LiveData<Mood> getSelectedMood() {
@@ -116,6 +119,7 @@ public class MoodViewModel extends ViewModel {
     /**
      * what is the today's date of the model?
      * needed when date changes
+     *
      * @return liveData of today's date
      */
     public LiveData<Calendar> getTodaysDate() {
@@ -123,9 +127,9 @@ public class MoodViewModel extends ViewModel {
     }
 
 
-
     /**
      * get the currently selected range of moods
+     *
      * @return
      */
     public LiveData<List<Mood>> getReportMoods() {
@@ -134,6 +138,7 @@ public class MoodViewModel extends ViewModel {
 
     /**
      * get a handle to change the report range
+     *
      * @return
      */
     public MutableLiveData<GraphRange> getMoodDateRange() {
@@ -176,6 +181,7 @@ public class MoodViewModel extends ViewModel {
     /**
      * given a calendar date, make it the main date
      * to retrieve the current mood.
+     *
      * @param date
      */
     public void selectMood(Calendar date) {

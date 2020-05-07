@@ -9,6 +9,7 @@ import com.routinew.android.moodtracker.Utilities.CalendarUtilities;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Locale;
+import java.util.Random;
 
 import timber.log.Timber;
 
@@ -20,7 +21,7 @@ public class Mood {
     // define the mood score range here.
     public static final int MOOD_MINIMUM = -5;
     public static final int MOOD_MAXIMUM = 5;
-    public static final int EMPTY_MOOD = -99;
+    public static final int EMPTY_MOOD = -99; // this is an ugly hack in order to allow firebase to not store an additional field to check for empty mood
 
     @NonNull
     private String date = "1975-12-31"; // in yyyy-MM-dd format -- dummy date that should never be used.
@@ -43,8 +44,8 @@ public class Mood {
      * @param date -- timestamp
      */
     public Mood(int moodScore, @NonNull String date) {
-        if (moodScore < MOOD_MINIMUM || moodScore > MOOD_MAXIMUM)
-            throw new IllegalArgumentException(String.format(Locale.getDefault(), "%d not between %d and %d",
+        if ((moodScore < MOOD_MINIMUM || moodScore > MOOD_MAXIMUM) && moodScore != EMPTY_MOOD)
+            throw new IllegalArgumentException(String.format(Locale.getDefault(), "%d not between %d and %d ,and not empty.",
                     moodScore , MOOD_MINIMUM, MOOD_MAXIMUM));
 
         this.moodScore = moodScore;
@@ -68,14 +69,6 @@ public class Mood {
     // sets the mood to be for today
     public Mood(int moodScore) {
         this(moodScore, Calendar.getInstance());
-    }
-
-    // this is for generating empty moods -- do not save these in the db
-    // until they get a mood score
-    public Mood(Calendar date) {
-        // this can only be valid on an object creation, never changed to this
-        this.moodScore = EMPTY_MOOD;
-        this.date = CalendarUtilities.calendarToTextDate(date);
     }
 
     // for firebase setValue
@@ -156,6 +149,31 @@ public class Mood {
 
     public static Comparator<Mood> dateComparator() {
         return sDateComparator;
+    }
+
+    // These methods are for generating random moods for testing.
+
+    /**
+     * for getting a random mood score.
+     * @return
+     */
+    private static int generateRandomMoodScore() {
+        return new Random().nextInt((MOOD_MAXIMUM - MOOD_MINIMUM) + 1) + MOOD_MINIMUM;
+    }
+
+    /**
+     * test method for generating moods
+     * @param date
+     * @param forceEmptyMood return an empty mood instead of a random mood score
+     * @return generated mood for date.
+     */
+    public static Mood generateMood(Calendar date, boolean forceEmptyMood) {
+
+        if (forceEmptyMood) {
+            return new Mood(Mood.EMPTY_MOOD, date);
+        }
+
+        return new Mood(generateRandomMoodScore(), date);
     }
 
 

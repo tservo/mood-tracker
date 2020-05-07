@@ -26,7 +26,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.routinew.android.moodtracker.Data.MoodRepository;
+import com.routinew.android.moodtracker.Data.FirebaseRealtimeDatabase.FirebaseRealtimeDatabaseMoodRepository;
 import com.routinew.android.moodtracker.Utilities.QuoteOfDayConnector;
 
 import butterknife.BindView;
@@ -193,7 +193,7 @@ public class LoginActivity extends AppCompatActivity  {
                             FirebaseUser firebaseUser = mAuth.getCurrentUser();
 
                             // get a proper repository set up
-                            MoodRepository.getInstance();
+                            FirebaseRealtimeDatabaseMoodRepository.getInstance();
 
                             // and here we go
                             updateActivity(firebaseUser);

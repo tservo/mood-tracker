@@ -17,7 +17,7 @@ import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
 import com.jjoe64.graphview.helper.StaticLabelsFormatter;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
-import com.routinew.android.moodtracker.Data.MoodRepository;
+import com.routinew.android.moodtracker.Data.FirebaseRealtimeDatabase.FirebaseRealtimeDatabaseMoodRepository;
 import com.routinew.android.moodtracker.POJO.Mood;
 import com.routinew.android.moodtracker.Utilities.CalendarUtilities;
 import com.routinew.android.moodtracker.ViewModels.MoodViewModel;
@@ -103,7 +103,7 @@ public class GraphFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        MoodViewModelFactory moodViewModelFactory = new MoodViewModelFactory(MoodRepository.getInstance());
+        MoodViewModelFactory moodViewModelFactory = new MoodViewModelFactory(FirebaseRealtimeDatabaseMoodRepository.getInstance());
         mViewModel = ViewModelProviders.of(requireActivity(), moodViewModelFactory).get(MoodViewModel.class);
 
         // initialize and handle changes

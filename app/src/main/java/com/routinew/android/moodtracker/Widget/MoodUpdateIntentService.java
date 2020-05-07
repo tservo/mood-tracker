@@ -11,7 +11,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.routinew.android.moodtracker.Data.MoodRepository;
+import com.routinew.android.moodtracker.Data.FirebaseRealtimeDatabase.FirebaseRealtimeDatabaseMoodRepository;
 import com.routinew.android.moodtracker.POJO.Mood;
 
 import java.util.Calendar;
@@ -66,7 +66,7 @@ public class MoodUpdateIntentService extends IntentService {
             final AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
             final int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(this, MoodWidget.class));
 
-        Query query = MoodRepository.getMoodQueryForWidget();
+        Query query = FirebaseRealtimeDatabaseMoodRepository.getMoodQueryForWidget();
 
         // likely no user -- can't send a mood to the widgets
         if (null == query) {
@@ -81,7 +81,7 @@ public class MoodUpdateIntentService extends IntentService {
                 Mood mood = dataSnapshot.getValue(Mood.class);
                 // if not, create a new, empty mood as a default
                 if (null == mood) {
-                    mood = new Mood(Calendar.getInstance());
+                    mood = new Mood(Mood.EMPTY_MOOD,Calendar.getInstance());
                 }
                 //Now update all widgets
                 MoodWidget.updateMoodWidgets(MoodUpdateIntentService.this, appWidgetManager, mood, appWidgetIds);

@@ -68,6 +68,7 @@ public class CalendarUtilities {
     public static String calendarToTextDate(Calendar calendar) {
         setToMidnight(calendar);
         return sDateFormat.format(calendar.getTime());
+
     }
 
     /**

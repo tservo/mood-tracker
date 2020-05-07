@@ -1,4 +1,4 @@
-package com.routinew.android.moodtracker.Data;
+package com.routinew.android.moodtracker.Data.FirebaseRealtimeDatabase;
 
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
