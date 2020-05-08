@@ -1,14 +1,14 @@
 package com.routinew.android.moodtracker;
 
 import android.annotation.SuppressLint;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
-import android.support.v4.app.Fragment;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.Fragment;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -26,15 +26,16 @@ import com.routinew.android.moodtracker.POJO.Mood;
 import com.routinew.android.moodtracker.Utilities.CalendarUtilities;
 import com.routinew.android.moodtracker.ViewModels.MoodViewModel;
 import com.routinew.android.moodtracker.ViewModels.MoodViewModelFactory;
+import com.routinew.android.moodtracker.databinding.ActivityMainBinding;
+import com.routinew.android.moodtracker.databinding.MoodFragmentBinding;
 
 import java.util.Calendar;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
 import devs.mulham.horizontalcalendar.HorizontalCalendar;
 import devs.mulham.horizontalcalendar.utils.HorizontalCalendarListener;
 import timber.log.Timber;
+
+import static com.routinew.android.moodtracker.databinding.MoodFragmentBinding.inflate;
 
 public class MoodFragment extends Fragment {
 
@@ -56,30 +57,40 @@ public class MoodFragment extends Fragment {
 
     private boolean mKeepSliderUnlocked = false;
 
+    private ActivityMainBinding mActivityMainBinding;
+    private MoodFragmentBinding mBinding;
 
     public static MoodFragment newInstance() {
         return new MoodFragment();
     }
 
     // butterknife
-    @BindView(R.id.greeting) TextView mGreeting; // greeting to show user is logged in
-    @BindView(R.id.tv_calendar_date) TextView mCalendarDate;
-    @BindView(R.id.moodSlider) SeekBar mMoodSlider;
-    @BindView(R.id.button_lock_slider) ToggleButton mToggleLockSlider;
+    TextView mGreeting; // greeting to show user is logged in
+    TextView mCalendarDate;
+    SeekBar mMoodSlider;
+    ToggleButton mToggleLockSlider;
 
     // handle for setting if database is offline.
-    @BindView(R.id.mood_fragment_layout) ConstraintLayout mMoodFragmentLayout;
-    @BindView(R.id.mood_data_offline) TextView mMoodDataOffline;
-    private Unbinder unbinder;
+    ConstraintLayout mMoodFragmentLayout;
+    TextView mMoodDataOffline;
 
     private HorizontalCalendar mHorizontalCalendar;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view =  inflater.inflate(R.layout.mood_fragment, container, false);
-        // attach butterknife
-        unbinder = ButterKnife.bind(this, view);
+        mBinding = MoodFragmentBinding.inflate(inflater,container,false);
+        View view = mBinding.getRoot();
+
+        // here is the declaration of the views. this isn't actually necessary but it's to change over
+        // from butterknife
+        mGreeting = mBinding.greeting;
+        mCalendarDate = mBinding.tvCalendarDate;
+        mMoodSlider = mBinding.layoutMoodSlider.moodSlider;
+        mToggleLockSlider = mBinding.buttonLockSlider;
+        mMoodFragmentLayout = mBinding.moodFragmentLayout;
+        mMoodDataOffline = mBinding.moodDataOffline;
+
         return view;
     }
 
@@ -141,9 +152,8 @@ public class MoodFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-
-        // clean up after butterknife
-        unbinder.unbind();
+        // clean up after view-binding
+        mBinding = null;
     }
 
     /**
@@ -170,6 +180,7 @@ public class MoodFragment extends Fragment {
     private void formatDate(Calendar date, int position) {
         String selectedDateStr = DateFormat.format(TEXTVIEW_DATE_FORMAT, date).toString();
         mCalendarDate.setText(selectedDateStr);
+
         Timber.i("onDateSelected: %s - Position = %s", selectedDateStr ,position);
     }
 

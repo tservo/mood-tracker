@@ -1,12 +1,7 @@
 package com.routinew.android.moodtracker;
 
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-
 import android.os.AsyncTask;
-
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -28,10 +23,11 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.routinew.android.moodtracker.Data.FirebaseRealtimeDatabase.FirebaseRealtimeDatabaseMoodRepository;
 import com.routinew.android.moodtracker.Utilities.QuoteOfDayConnector;
+import com.routinew.android.moodtracker.databinding.ActivityLoginBinding;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import timber.log.Timber;
 
 /**
@@ -45,36 +41,23 @@ public class LoginActivity extends AppCompatActivity  {
     private GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth mAuth;
 
+    private ActivityLoginBinding mBinding;
 
     // UI references.
-    @BindView(R.id.signin) SignInButton mSignInButton;
-    @BindView(R.id.image_background) ImageView mBackgroundView;
-
-    @OnClick(R.id.signin) public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.signin:
-                signIn();
-                break;
-            // ...
-        }
-    }
-
+    private SignInButton mSignInButton;
+    ImageView mBackgroundView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-
-        ButterKnife.bind(this);
-
-
+        mBinding = ActivityLoginBinding.inflate(getLayoutInflater());
+        View view = mBinding.getRoot();
+        setContentView(view);
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
-
-
 
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
@@ -84,7 +67,18 @@ public class LoginActivity extends AppCompatActivity  {
 
         // here we showcase an asynctask to load a background image from quote of the day
         // FIXME put text to attribute it.
+        mSignInButton = mBinding.signin;
         mSignInButton.setEnabled(false);
+        mSignInButton.setOnClickListener(new View.OnClickListener() {
+                                             @Override
+                                             public void onClick(View v) {
+                                                 signIn();
+                                             }
+                                         }
+
+        );
+
+        mBackgroundView = mBinding.imageBackground;
         new AsyncTask<Void,Void,String>() {
 
             @Override

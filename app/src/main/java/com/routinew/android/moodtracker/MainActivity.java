@@ -1,21 +1,27 @@
 package com.routinew.android.moodtracker;
 
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
-import android.support.design.widget.TabLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
+import com.google.android.material.tabs.TabLayout;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import android.view.View;
 import android.widget.LinearLayout;
 
 
@@ -28,10 +34,9 @@ import com.google.android.gms.tasks.Task;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.routinew.android.moodtracker.databinding.ActivityMainBinding;
 
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import timber.log.Timber;
 
 
@@ -40,32 +45,29 @@ public class MainActivity extends AppCompatActivity {
     /*
      The google sign-in code comes from https://developers.google.com/identity/sign-in/android/sign-in
      */
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
-    private SectionsPagerAdapter mSectionsPagerAdapter;
-
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
-    @BindView(R.id.container) ViewPager mViewPager;
-
     private static final int NUM_TABS = 2; // mood, and graph
     private static final int MOOD_TAB = 0;
     private static final int GRAPH_TAB = 1;
 
+    private ActivityMainBinding mBinding;
+    /**
+     * The {@link ViewPager} that will host the section contents.
+     */
+    ViewPager mViewPager;
+    TabLayout mTabLayout;
+
     // --Commented out by Inspection (2018/11/8, 13:13):private static final int RC_SIGN_IN = 405;
-
-    @BindView(R.id.tab_layout) TabLayout mTabLayout;
-    @BindView(R.id.toolbar) Toolbar mToolbar;
-    @BindView(R.id.logged_in_screen) LinearLayout mLoggedInScreen;
-
-
+    Toolbar mToolbar;
+    LinearLayout mLoggedInScreen;
+    /**
+     * The {@link PagerAdapter} that will provide
+     * fragments for each of the sections. We use a
+     * {@link FragmentPagerAdapter} derivative, which will keep every
+     * loaded fragment in memory. If this becomes too memory intensive, it
+     * may be best to switch to a
+     * {@link FragmentStatePagerAdapter}.
+     */
+    private SectionsPagerAdapter mSectionsPagerAdapter;
     private GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth mAuth;
 
@@ -73,8 +75,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
+        mBinding = ActivityMainBinding.inflate(getLayoutInflater());
+        View view = mBinding.getRoot();
+        setContentView(view);
+        // ButterKnife.bind(this);
 
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
@@ -84,7 +88,6 @@ public class MainActivity extends AppCompatActivity {
                 .build();
 
 
-
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         mAuth = FirebaseAuth.getInstance();
@@ -92,20 +95,25 @@ public class MainActivity extends AppCompatActivity {
         // do we have a user or do we need to go back?
         updateActivity(mAuth.getCurrentUser());
 
-        mToolbar = findViewById(R.id.toolbar);
+        // use the new view-binding here.
+        mToolbar = mBinding.toolbar;
         setSupportActionBar(mToolbar);
-
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager() );
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
+        mViewPager = mBinding.container;
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         // and the tab layout with the view pager!
+        mTabLayout = mBinding.tabLayout;
         mTabLayout.setupWithViewPager(mViewPager);
         // and assign the icons
+
+        // likely not necessary
+        mLoggedInScreen = mBinding.loggedInScreen;
 
         TabLayout.Tab moodTab = mTabLayout.getTabAt(MOOD_TAB);
         if (null != moodTab) {
@@ -116,8 +124,6 @@ public class MainActivity extends AppCompatActivity {
         if (null != graphTab) {
             graphTab.setIcon(R.drawable.ic_show_chart_black_24dp);
         }
-
-
     }
 
     @Override
@@ -144,13 +150,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     // helper methods for event handlers:
-
 
 
     /**
      * handle the logged in/logged out UI display
+     *
      * @param account
      */
     private void updateActivity(FirebaseUser account) {
@@ -186,22 +191,21 @@ public class MainActivity extends AppCompatActivity {
     class SectionsPagerAdapter extends FragmentPagerAdapter {
         // member variables
 
-
-
         SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
         }
-
 
         @Override
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             switch (position) {
-                case MOOD_TAB: return MoodFragment.newInstance();
-                case GRAPH_TAB: return GraphFragment.newInstance();
+                case MOOD_TAB:
+                    return MoodFragment.newInstance();
+                case GRAPH_TAB:
+                    return GraphFragment.newInstance();
 
                 default:
-                    Timber.w("Illegal position for getItem: %d",position);
+                    Timber.w("Illegal position for getItem: %d", position);
                     return null;
             }
         }
@@ -210,10 +214,13 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
-                case MOOD_TAB: return getResources().getString(R.string.label_mood);
-                case GRAPH_TAB: return getResources().getString(R.string.label_graph);
+                case MOOD_TAB:
+                    return getResources().getString(R.string.label_mood);
+                case GRAPH_TAB:
+                    return getResources().getString(R.string.label_graph);
 
-                default: return null;
+                default:
+                    return null;
             }
         }
 

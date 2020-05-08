@@ -1,14 +1,16 @@
 package com.routinew.android.moodtracker;
 
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -22,15 +24,13 @@ import com.routinew.android.moodtracker.POJO.Mood;
 import com.routinew.android.moodtracker.Utilities.CalendarUtilities;
 import com.routinew.android.moodtracker.ViewModels.MoodViewModel;
 import com.routinew.android.moodtracker.ViewModels.MoodViewModelFactory;
+import com.routinew.android.moodtracker.databinding.GraphFragmentBinding;
 
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnItemSelected;
-import butterknife.Unbinder;
 import timber.log.Timber;
 
 public class GraphFragment extends Fragment {
@@ -38,56 +38,64 @@ public class GraphFragment extends Fragment {
 
 
     private MoodViewModel mViewModel;
+    private GraphFragmentBinding mBinding;
 
-    // fragments have a special lifestyle, so need this.
-    private Unbinder unbinder;
-
-    @BindView(R.id.graph) GraphView mGraphView;
-    @BindView(R.id.spinner) Spinner mReportSpinner;
-    @BindView(R.id.no_mood_data_label) TextView mNoMoodDataLabel;
-
-    @OnItemSelected(R.id.spinner) void onSpinnerItemSelected(int position) {
-        if (null != mViewModel) {
-            CalendarUtilities.GraphRange graphRange;
-            switch (position) {
-                case 0:
-                    graphRange = CalendarUtilities.GraphRange.GRAPH_2_WEEKS;
-                    break;
-                case 1:
-                    graphRange = CalendarUtilities.GraphRange.GRAPH_1_MONTH;
-                    break;
-                case 2:
-                    graphRange = CalendarUtilities.GraphRange.GRAPH_3_MONTHS;
-                    break;
-                case 3:
-                    graphRange = CalendarUtilities.GraphRange.GRAPH_6_MONTHS;
-                    break;
-                case 4:
-                    graphRange = CalendarUtilities.GraphRange.GRAPH_1_YEAR;
-                    break;
-                default:
-                    Timber.w("Invalid Position: %d", position);
-                    graphRange = CalendarUtilities.GraphRange.GRAPH_2_WEEKS;
-            }
-
-            mViewModel.getMoodDateRange().setValue(graphRange);
-        }
-
-        Timber.d("Spinner, position %d item %s",position, mReportSpinner.getItemAtPosition(position));
-    }
+    GraphView mGraphView;
+    Spinner mReportSpinner;
+    TextView mNoMoodDataLabel;
 
     public static GraphFragment newInstance() {
         return new GraphFragment();
     }
 
-
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.graph_fragment, container, false);
-        unbinder = ButterKnife.bind(this, view);
+        mBinding = GraphFragmentBinding.inflate(inflater, container, false);
+        View view = mBinding.getRoot();
+
+        mGraphView = mBinding.graph;
+        mReportSpinner = mBinding.spinner;
+        mNoMoodDataLabel = mBinding.noMoodDataLabel;
+
+        mReportSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (null != mViewModel) {
+                    CalendarUtilities.GraphRange graphRange;
+                    switch (position) {
+                        case 0:
+                            graphRange = CalendarUtilities.GraphRange.GRAPH_2_WEEKS;
+                            break;
+                        case 1:
+                            graphRange = CalendarUtilities.GraphRange.GRAPH_1_MONTH;
+                            break;
+                        case 2:
+                            graphRange = CalendarUtilities.GraphRange.GRAPH_3_MONTHS;
+                            break;
+                        case 3:
+                            graphRange = CalendarUtilities.GraphRange.GRAPH_6_MONTHS;
+                            break;
+                        case 4:
+                            graphRange = CalendarUtilities.GraphRange.GRAPH_1_YEAR;
+                            break;
+                        default:
+                            Timber.w("Invalid Position: %d", position);
+                            graphRange = CalendarUtilities.GraphRange.GRAPH_2_WEEKS;
+                    }
+
+                    mViewModel.getMoodDateRange().setValue(graphRange);
+                }
+
+                Timber.d("Spinner, position %d item %s",position, mReportSpinner.getItemAtPosition(position));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
         return view;
     }
 
@@ -96,8 +104,6 @@ public class GraphFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         initializeGraph();
-
-
     }
 
     @Override
@@ -121,9 +127,7 @@ public class GraphFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-
-        // clean up after butterknife
-        unbinder.unbind();
+        mBinding = null;
     }
 
     // private helper methods
@@ -192,7 +196,7 @@ public class GraphFragment extends Fragment {
         // we need the first and last dates
         // populate the graph view here.
         Collections.sort(moods, Mood.dateComparator()); // make sure they are in order first!
-
+Timber.w("Mood %s",moods.toString());
         // populate the series
         DataPoint[] moodData = new DataPoint[moods.size()];
         for (int i=0; i < moods.size(); i++) {
@@ -207,7 +211,5 @@ public class GraphFragment extends Fragment {
         series.setThickness(8);
         mGraphView.addSeries(series);
         mGraphView.getViewport().scrollToEnd(); // make sure to start for the latest day
-
-
     }
 }
