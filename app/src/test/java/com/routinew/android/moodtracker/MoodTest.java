@@ -7,6 +7,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.everyItem;
 import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.CoreMatchers.startsWith;
@@ -23,7 +24,9 @@ import org.hamcrest.core.CombinableMatcher;
 import org.junit.Test;
 import com.routinew.android.moodtracker.POJO.Mood;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 public class MoodTest {
     private Comparator<Mood> dateComparator = Mood.dateComparator();
@@ -37,6 +40,7 @@ public class MoodTest {
 
     @Test
     public void testComparator() {
+        List<Mood> mood = new ArrayList<>();
 
     }
 }

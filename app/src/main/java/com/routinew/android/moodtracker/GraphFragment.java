@@ -1,6 +1,7 @@
 package com.routinew.android.moodtracker;
 
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -110,7 +111,7 @@ public class GraphFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         MoodViewModelFactory moodViewModelFactory = new MoodViewModelFactory(FirebaseRealtimeDatabaseMoodRepository.getInstance());
-        mViewModel = ViewModelProviders.of(requireActivity(), moodViewModelFactory).get(MoodViewModel.class);
+        mViewModel = new ViewModelProvider(requireActivity(), moodViewModelFactory).get(MoodViewModel.class);
 
         // initialize and handle changes
         initializeGraph();

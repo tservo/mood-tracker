@@ -2,6 +2,7 @@ package com.routinew.android.moodtracker;
 
 import android.annotation.SuppressLint;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.os.Handler;
@@ -64,15 +65,15 @@ public class MoodFragment extends Fragment {
         return new MoodFragment();
     }
 
-    // butterknife
-    TextView mGreeting; // greeting to show user is logged in
-    TextView mCalendarDate;
-    SeekBar mMoodSlider;
-    ToggleButton mToggleLockSlider;
+
+    private TextView mGreeting; // greeting to show user is logged in
+    private TextView mCalendarDate;
+    private SeekBar mMoodSlider;
+    private ToggleButton mToggleLockSlider;
 
     // handle for setting if database is offline.
-    ConstraintLayout mMoodFragmentLayout;
-    TextView mMoodDataOffline;
+    private ConstraintLayout mMoodFragmentLayout;
+    private TextView mMoodDataOffline;
 
     private HorizontalCalendar mHorizontalCalendar;
 
@@ -109,7 +110,7 @@ public class MoodFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         MoodViewModelFactory moodViewModelFactory = new MoodViewModelFactory(FirebaseRealtimeDatabaseMoodRepository.getInstance());
 
-        mViewModel = ViewModelProviders.of(requireActivity(),moodViewModelFactory).get(MoodViewModel.class);
+        mViewModel = new ViewModelProvider(requireActivity(),moodViewModelFactory).get(MoodViewModel.class);
 
         // handle if we're offline
         FirebaseRealtimeDatabaseMoodRepository.databaseIsConnected().observe(this, new Observer<Boolean>() {
